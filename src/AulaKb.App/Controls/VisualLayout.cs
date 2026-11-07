@@ -216,6 +216,12 @@ public sealed class AppSettings
     /// <summary>UI language override: null follows Windows, otherwise tr-TR / en-US.</summary>
     public string? Language { get; set; }
 
+    /// <summary>Closing the window keeps AulaKb in the notification area (music mode keeps running).</summary>
+    public bool CloseToTray { get; set; } = true;
+
+    /// <summary>Colours the user saved from the custom colour picker, as RRGGBB.</summary>
+    public List<string> CustomColours { get; set; } = [];
+
     public static AppSettings Load()
     {
         try

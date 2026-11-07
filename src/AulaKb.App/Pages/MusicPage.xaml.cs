@@ -137,6 +137,12 @@ public sealed partial class MusicPage : Page
             Swatches.Children.Insert(Swatches.Children.Count - 1, swatch); // before the "+" button
         }
         ToolTipService.SetToolTip(CustomButton, Loc.S("lighting.custom"));
+        CustomSwatch.AttachSaved(Swatches, CustomButton, CustomPicker, c =>
+        {
+            _colour = c;
+            RainbowButton.IsChecked = false;
+            Apply();
+        });
         KeyboardService.StreamFailed += OnStreamFailed;
         Apply();
         Status.Ok(Loc.S("music.off"));

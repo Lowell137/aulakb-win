@@ -28,16 +28,55 @@ public sealed partial class MainWindow : Window
         NavMusic.Content = Loc.S("nav.music");
 
         Nav.SelectedItem = Nav.MenuItems[0];
-        Closed += (_, _) => KeyboardService.Shutdown();
+        Closed += (_, _) =>
+        {
+            _tray?.Dispose();
+            KeyboardService.Shutdown();
+        };
 
-        if (Environment.GetCommandLineArgs().Contains("--selftest"))
+        bool selftest = Environment.GetCommandLineArgs().Contains("--selftest");
+        if (!selftest && File.Exists(icon))
+        {
+            _tray = new TrayIcon(icon, "AulaKb") { OpenText = Loc.S("tray.open"), ExitText = Loc.S("tray.exit") };
+            _tray.OpenRequested += ShowFromTray;
+            _tray.ExitRequested += ExitApp;
+        }
+        // Closing hides to the tray when that is enabled; Exit in the tray menu really quits.
+        AppWindow.Closing += (_, e) =>
+        {
+            if (!_exiting && _tray is not null && Controls.AppSettings.Load().CloseToTray)
+            {
+                e.Cancel = true;
+                AppWindow.Hide();
+            }
+        };
+
+        if (selftest)
             RunSelfTest();
+    }
+
+    TrayIcon? _tray;
+    bool _exiting;
+
+    public void ShowFromTray()
+    {
+        AppWindow.Show();
+        if (AppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter { State: Microsoft.UI.Windowing.OverlappedPresenterState.Minimized } p)
+            p.Restore();
+        Activate();
+    }
+
+    void ExitApp()
+    {
+        _exiting = true;
+        Close();
     }
 
     /// <summary>Opens every page in turn (with --selftest) so XAML or start-up errors show up in crash.log.</summary>
     void RunSelfTest()
     {
-        var pages = Nav.MenuItems.Cast<object>().Append(Nav.SettingsItem).ToList();
+        // Nav.SettingsItem only exists once the template is applied: resolve it when selecting
+        var pages = Nav.MenuItems.Cast<object?>().Append(null).ToList();
         int index = 0;
         var timer = DispatcherQueue.CreateTimer();
         timer.Interval = TimeSpan.FromMilliseconds(2500);
@@ -55,7 +94,7 @@ public sealed partial class MainWindow : Window
             }
             if (index < pages.Count)
             {
-                Nav.SelectedItem = pages[index++];
+                Nav.SelectedItem = pages[index++] ?? Nav.SettingsItem;
                 return;
             }
             timer.Stop();
@@ -107,7 +146,8 @@ public sealed partial class MainWindow : Window
 
     void Nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        Type page = args.IsSettingsSelected
+        // selecting Nav.SettingsItem from code does not set IsSettingsSelected
+        Type page = args.IsSettingsSelected || ReferenceEquals(args.SelectedItem, Nav.SettingsItem)
             ? typeof(SettingsPage)
             : (args.SelectedItemContainer?.Tag as string) switch
             {

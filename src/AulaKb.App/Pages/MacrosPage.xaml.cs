@@ -31,6 +31,11 @@ public sealed partial class MacrosPage : Page
         DelayAllButton.Content = Loc.S("macros.delay_all");
         FooterText.Text = Loc.S("macros.footer");
         RecordText.Text = Loc.S("macros.record");
+        InsertKeyText.Text = Loc.S("macros.insert_key");
+        ToolTipService.SetToolTip(InsertKeyButton, Loc.S("macros.insert_key_tt"));
+        ToolTipService.SetToolTip(MacroMenuButton, Loc.S("profile.more"));
+        ExportItem.Text = Loc.S("macros.export");
+        ImportItem.Text = Loc.S("macros.import");
         _saveTimer = DispatcherQueue.CreateTimer();
         _saveTimer.Interval = TimeSpan.FromMilliseconds(800);
         _saveTimer.IsRepeating = false;
@@ -246,6 +251,106 @@ public sealed partial class MacrosPage : Page
         macro.Events.RemoveAt(EventList.SelectedIndex);
         RefreshEvents();
         ScheduleSave();
+    }
+
+    // ---- inserting a key into an existing macro ----
+
+    void InsertKey_Checked(object sender, RoutedEventArgs e)
+    {
+        if (Current is null)
+        {
+            InsertKeyButton.IsChecked = false;
+            return;
+        }
+        Status.Busy(Loc.S("macros.insert_waiting"));
+        PreviewKeyDown += OnInsertKey;
+        Focus(FocusState.Programmatic);
+    }
+
+    void InsertKey_Unchecked(object sender, RoutedEventArgs e) => PreviewKeyDown -= OnInsertKey;
+
+    /// <summary>Adds a press and a release of the pressed key after the selected step (or at the end).</summary>
+    void OnInsertKey(object sender, KeyRoutedEventArgs e)
+    {
+        e.Handled = true;
+        if (Current is not Macro macro || !VirtualKeyMap.TryGet(e.Key, out byte usage))
+            return;
+        int at = EventList.SelectedIndex >= 0 ? EventList.SelectedIndex + 1 : macro.Events.Count;
+        if (macro.Events.Count + 2 > 120)
+        {
+            InsertKeyButton.IsChecked = false;
+            return;
+        }
+        // a short, typical press: 30 ms held, then 30 ms before whatever followed
+        macro.Events.Insert(at, new MacroEvent(true, usage, 30));
+        macro.Events.Insert(at + 1, new MacroEvent(false, usage, 30));
+        InsertKeyButton.IsChecked = false;
+        RefreshEvents();
+        EventList.SelectedIndex = at + 1;
+        ScheduleSave();
+    }
+
+    // ---- import / export (JSON: [{ "name": "...", "events": [{ "down": true, "usage": 4, "delay": 30 }] }]) ----
+
+    sealed record MacroFileEvent(bool Down, byte Usage, ushort Delay);
+
+    sealed record MacroFile(string Name, List<MacroFileEvent> Events);
+
+    static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+    };
+
+    async void Export_Click(object sender, RoutedEventArgs e)
+    {
+        if (_macros.Count == 0)
+            return;
+        var picker = new Windows.Storage.Pickers.FileSavePicker { SuggestedFileName = Loc.S("macros.title") };
+        picker.FileTypeChoices.Add("JSON", [".json"]);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, App.WindowHandle);
+        var file = await picker.PickSaveFileAsync();
+        if (file is null)
+            return;
+        try
+        {
+            var data = _macros.Select(m => new MacroFile(m.Name, m.Events.Select(x => new MacroFileEvent(x.Down, x.Usage, x.DelayMs)).ToList())).ToList();
+            await File.WriteAllTextAsync(file.Path, System.Text.Json.JsonSerializer.Serialize(data, JsonOptions));
+            Status.Ok(Loc.F("macros.exported", _macros.Count, file.Name));
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    async void Import_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        picker.FileTypeFilter.Add(".json");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, App.WindowHandle);
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<List<MacroFile>>(await File.ReadAllTextAsync(file.Path), JsonOptions)
+                ?? throw new InvalidDataException(file.Name);
+            int first = _macros.Count;
+            foreach (var m in data)
+            {
+                var macro = new Macro { Name = m.Name };
+                macro.Events.AddRange(m.Events.Take(120).Select(x => new MacroEvent(x.Down, x.Usage, x.Delay)));
+                _macros.Add(macro);
+            }
+            RefreshList(first);
+            ScheduleSave(); // too long for the keyboard shows an error instead of writing
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
     }
 
     // ---- saving ----

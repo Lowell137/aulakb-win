@@ -68,6 +68,8 @@ public sealed partial class LightingPage : Page
             Swatches.Children.Insert(Swatches.Children.Count - 1, swatch); // before the "+" button
         }
         Board.KeyClicked += PaintKey;
+        Board.KeyDragged += DragPaintKey;
+        CustomSwatch.AttachSaved(Swatches, CustomButton, CustomPicker, PickColour);
 
         _frameTimer = DispatcherQueue.CreateTimer();
         _frameTimer.Interval = TimeSpan.FromMilliseconds(40);
@@ -243,6 +245,16 @@ public sealed partial class LightingPage : Page
         if (_perKey is null || _profile?.Effect != Effects.SelfDefine)
             return;
         _perKey[key.Led] = _perKey[key.Led] == _paint ? Rgb.Black : _paint;
+        _perKeyDirty = true;
+        ScheduleApply();
+    }
+
+    /// <summary>Drag painting sets the colour on every key passed (no toggling).</summary>
+    void DragPaintKey(KeyInfo key)
+    {
+        if (_perKey is null || _profile?.Effect != Effects.SelfDefine || _perKey[key.Led] == _paint)
+            return;
+        _perKey[key.Led] = _paint;
         _perKeyDirty = true;
         ScheduleApply();
     }

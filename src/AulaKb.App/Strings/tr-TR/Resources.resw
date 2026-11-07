@@ -515,4 +515,106 @@
   <data name="music.mode11" xml:space="preserve">
     <value>Koşan ışık</value>
   </data>
+  <data name="tray.open" xml:space="preserve">
+    <value>AulaKb'yi aç</value>
+  </data>
+  <data name="tray.exit" xml:space="preserve">
+    <value>Çıkış</value>
+  </data>
+  <data name="settings.section_app" xml:space="preserve">
+    <value>Uygulama</value>
+  </data>
+  <data name="settings.tray_title" xml:space="preserve">
+    <value>Kapatınca tepside kalsın</value>
+  </data>
+  <data name="settings.tray_desc" xml:space="preserve">
+    <value>Pencereyi kapatınca AulaKb bildirim alanında çalışmaya devam eder (müzik modu sürer). Kapalıysa kapatmak uygulamadan çıkar</value>
+  </data>
+  <data name="settings.startup_title" xml:space="preserve">
+    <value>Windows ile başlat</value>
+  </data>
+  <data name="settings.startup_desc" xml:space="preserve">
+    <value>Oturum açınca AulaKb bildirim alanında başlar</value>
+  </data>
+  <data name="profile.title" xml:space="preserve">
+    <value>Profiller</value>
+  </data>
+  <data name="profile.desc" xml:space="preserve">
+    <value>Klavyedeki ayarların tamamı (ışık, tuş atamaları, makrolar) adlı bir profil olarak saklanır; Uygula onu klavyeye yazar</value>
+  </data>
+  <data name="profile.apply" xml:space="preserve">
+    <value>Uygula</value>
+  </data>
+  <data name="profile.more" xml:space="preserve">
+    <value>Diğer</value>
+  </data>
+  <data name="profile.new" xml:space="preserve">
+    <value>Klavyeden yeni profil</value>
+  </data>
+  <data name="profile.overwrite" xml:space="preserve">
+    <value>Seçili profile kaydet</value>
+  </data>
+  <data name="profile.rename" xml:space="preserve">
+    <value>Yeniden adlandır</value>
+  </data>
+  <data name="profile.copy" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="profile.delete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="profile.export" xml:space="preserve">
+    <value>Dışa aktar…</value>
+  </data>
+  <data name="profile.import" xml:space="preserve">
+    <value>İçe aktar…</value>
+  </data>
+  <data name="profile.default_name" xml:space="preserve">
+    <value>Profil {0}</value>
+  </data>
+  <data name="profile.copy_name" xml:space="preserve">
+    <value>{0} kopya</value>
+  </data>
+  <data name="profile.overwrite_confirm" xml:space="preserve">
+    <value>“{0}” klavyedeki şu anki ayarlarla değiştirilsin mi?</value>
+  </data>
+  <data name="profile.delete_confirm" xml:space="preserve">
+    <value>“{0}” Geri Dönüşüm Kutusu'na taşınsın mı?</value>
+  </data>
+  <data name="profile.file_type" xml:space="preserve">
+    <value>AulaKb profili</value>
+  </data>
+  <data name="profile.exported" xml:space="preserve">
+    <value>Dışa aktarıldı: {0}</value>
+  </data>
+  <data name="profile.imported" xml:space="preserve">
+    <value>İçe aktarıldı: {0}</value>
+  </data>
+  <data name="profile.import_invalid" xml:space="preserve">
+    <value>Bu dosya bir AulaKb profili değil</value>
+  </data>
+  <data name="colour.save" xml:space="preserve">
+    <value>Renklere ekle</value>
+  </data>
+  <data name="colour.remove" xml:space="preserve">
+    <value>Kaldır</value>
+  </data>
+  <data name="macros.insert_key" xml:space="preserve">
+    <value>Tuş ekle</value>
+  </data>
+  <data name="macros.insert_key_tt" xml:space="preserve">
+    <value>Bir tuşa bas; seçili adımın arkasına basma ve bırakma olarak eklenir</value>
+  </data>
+  <data name="macros.insert_waiting" xml:space="preserve">
+    <value>Eklenecek tuşa bas…</value>
+  </data>
+  <data name="macros.export" xml:space="preserve">
+    <value>Makroları dışa aktar…</value>
+  </data>
+  <data name="macros.import" xml:space="preserve">
+    <value>Makroları içe aktar…</value>
+  </data>
+  <data name="macros.exported" xml:space="preserve">
+    <value>{0} makro dışa aktarıldı: {1}</value>
+  </data>
 </root>

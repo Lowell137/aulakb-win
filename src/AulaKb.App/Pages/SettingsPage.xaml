@@ -30,6 +30,14 @@
                     <ComboBox x:Name="LayoutBox" MinWidth="220" SelectionChanged="LayoutBox_SelectionChanged" />
                 </controls:SettingsRow>
 
+                <TextBlock x:Name="SectionApp" Text="Uygulama" Style="{StaticResource SectionStyle}" />
+                <controls:SettingsRow x:Name="TrayRow" Glyph="&#xE8A7;">
+                    <ToggleSwitch x:Name="TrayToggle" MinWidth="0" Toggled="TrayToggle_Toggled" />
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="StartupRow" Glyph="&#xE7E8;">
+                    <ToggleSwitch x:Name="StartupToggle" MinWidth="0" Toggled="StartupToggle_Toggled" />
+                </controls:SettingsRow>
+
                 <TextBlock x:Name="SectionKeyboard" Text="Klavye" Style="{StaticResource SectionStyle}" />
                 <controls:SettingsRow x:Name="DebounceRow" Glyph="&#xE916;" Title="Debounce" Description="Çift basmayı önler; yüksek kademe gecikmeyi artırır. Varsayılan 2">
                     <StackPanel Orientation="Horizontal" Spacing="10">
@@ -45,16 +53,42 @@
                 </controls:SettingsRow>
 
                 <TextBlock x:Name="SectionBackup" Text="Yedek" Style="{StaticResource SectionStyle}" />
-                <controls:SettingsRow x:Name="BackupRow" Glyph="&#xE74E;" Title="Yedek al" Description="Işık, tuş atamaları ve makrolar Belgeler\AulaKb\Yedekler altına">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Button x:Name="OpenFolderButton" Content="Klasörü aç" Click="OpenFolder_Click" />
-                        <Button x:Name="BackupButton" Content="Yedek al" Click="Backup_Click" />
-                    </StackPanel>
-                </controls:SettingsRow>
-                <controls:SettingsRow x:Name="RestoreRow" Glyph="&#xE777;" Title="Yedekten geri yükle" Description="Seçilen yedek klavyedeki ayarların yerine geçer">
+                <controls:SettingsRow x:Name="RestoreRow" Glyph="&#xE8F1;">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <ComboBox x:Name="BackupBox" MinWidth="200" />
-                        <Button x:Name="RestoreButton" Content="Geri yükle" Click="Restore_Click" />
+                        <Button x:Name="RestoreButton" Content="Uygula" Click="Restore_Click" />
+                        <Button x:Name="ProfileMenuButton" Padding="10,6">
+                            <FontIcon Glyph="&#xE712;" FontSize="14" />
+                            <Button.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                    <MenuFlyoutItem x:Name="ProfileNewItem" Click="ProfileNew_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE710;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="ProfileOverwriteItem" Click="ProfileOverwrite_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE74E;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="ProfileRenameItem" Click="ProfileRename_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8AC;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="ProfileCopyItem" Click="ProfileCopy_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8C8;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="ProfileDeleteItem" Click="ProfileDelete_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE74D;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem x:Name="ProfileExportItem" Click="ProfileExport_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xEDE1;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="ProfileImportItem" Click="ProfileImport_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8B5;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="ProfileFolderItem" Click="OpenFolder_Click">
+                                        <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE838;" /></MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
                     </StackPanel>
                 </controls:SettingsRow>
 

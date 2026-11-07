@@ -45,18 +45,32 @@ public sealed partial class SettingsPage : Page
         DebounceRow.Description = Loc.S("settings.debounce_desc");
         TapRow.Title = Loc.S("settings.tap");
         TapRow.Description = Loc.S("settings.tap_desc");
-        BackupRow.Title = Loc.S("settings.backup_title");
-        BackupRow.Description = Loc.S("settings.backup_desc");
-        OpenFolderButton.Content = Loc.S("settings.backup_open");
-        BackupButton.Content = Loc.S("settings.backup_btn");
-        RestoreRow.Title = Loc.S("settings.restore_title");
-        RestoreRow.Description = Loc.S("settings.restore_desc");
-        RestoreButton.Content = Loc.S("settings.restore_btn");
+        RestoreRow.Title = Loc.S("profile.title");
+        RestoreRow.Description = Loc.S("profile.desc");
+        RestoreButton.Content = Loc.S("profile.apply");
+        ToolTipService.SetToolTip(ProfileMenuButton, Loc.S("profile.more"));
+        ProfileNewItem.Text = Loc.S("profile.new");
+        ProfileOverwriteItem.Text = Loc.S("profile.overwrite");
+        ProfileRenameItem.Text = Loc.S("profile.rename");
+        ProfileCopyItem.Text = Loc.S("profile.copy");
+        ProfileDeleteItem.Text = Loc.S("profile.delete");
+        ProfileExportItem.Text = Loc.S("profile.export");
+        ProfileImportItem.Text = Loc.S("profile.import");
+        ProfileFolderItem.Text = Loc.S("settings.backup_open");
         FactoryRow.Title = Loc.S("settings.factory_title");
         FactoryRow.Description = Loc.S("settings.factory_desc");
         FactoryButton.Content = Loc.S("settings.factory_btn");
         AboutRow.Title = Loc.S("settings.about_title");
         AboutRow.Description = Loc.S("settings.about_desc");
+        SectionApp.Text = Loc.S("settings.section_app");
+        TrayRow.Title = Loc.S("settings.tray_title");
+        TrayRow.Description = Loc.S("settings.tray_desc");
+        StartupRow.Title = Loc.S("settings.startup_title");
+        StartupRow.Description = Loc.S("settings.startup_desc");
+        _appLoading = true;
+        TrayToggle.IsOn = AppSettings.Load().CloseToTray;
+        StartupToggle.IsOn = Startup.IsEnabled;
+        _appLoading = false;
 
         // First entry follows Windows; Tag null. The rest pin a drawing.
         var auto = new ComboBoxItem { Content = Loc.F("settings.layout_auto", VisualLayout.Name(VisualLayout.FromWindows())), Tag = null };
@@ -165,6 +179,31 @@ public sealed partial class SettingsPage : Page
             App.Restart();
     }
 
+    bool _appLoading;
+
+    void TrayToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_appLoading)
+            return;
+        var s = AppSettings.Load();
+        s.CloseToTray = TrayToggle.IsOn;
+        s.Save();
+    }
+
+    void StartupToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_appLoading)
+            return;
+        try
+        {
+            Startup.Set(StartupToggle.IsOn);
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
     void KeyboardSetting_Changed(object sender, object e)
     {
         if (DebounceText is null || TapSlider is null)
@@ -205,21 +244,214 @@ public sealed partial class SettingsPage : Page
         }
     }
 
-    async void Backup_Click(object sender, RoutedEventArgs e)
+    // ---- profiles: one folder per profile under Belgeler\AulaKb\Yedekler (old backups included) ----
+
+    string? SelectedProfile => BackupBox.SelectedItem as string;
+
+    async Task SaveProfileAsync(string name)
     {
-        string dir = Path.Combine(BackupRoot, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+        string dir = Path.Combine(BackupRoot, name);
+        Status.Busy(Loc.S("settings.backup_doing"));
+        // write to a temporary folder first so a failed read never leaves half a profile
+        string temp = dir + ".tmp";
+        if (Directory.Exists(temp))
+            Directory.Delete(temp, true);
+        await KeyboardService.RunAsync(kb => KeyboardBackup.Save(kb, temp));
+        if (Directory.Exists(dir))
+            Directory.Delete(dir, true);
+        Directory.Move(temp, dir);
+        RefreshBackups(name);
+        Status.Ok(Loc.F("settings.backup_done", name));
+    }
+
+    async void ProfileNew_Click(object sender, RoutedEventArgs e)
+    {
+        string? name = await AskNameAsync(Loc.S("profile.new"), Loc.F("profile.default_name", DateTime.Now.ToString("yyyy-MM-dd HH.mm")));
+        if (name is null)
+            return;
         try
         {
-            Status.Busy(Loc.S("settings.backup_doing"));
-            await KeyboardService.RunAsync(kb => KeyboardBackup.Save(kb, dir));
-            RefreshBackups();
-            Status.Ok(Loc.F("settings.backup_done", Path.GetFileName(dir)));
+            await SaveProfileAsync(name);
         }
         catch (Exception ex)
         {
             Status.Error(ex.Message);
         }
     }
+
+    async void ProfileOverwrite_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedProfile is not string name)
+        {
+            Status.Pending(Loc.S("settings.pick_backup"));
+            return;
+        }
+        if (!await ConfirmAsync(Loc.S("profile.overwrite"), Loc.F("profile.overwrite_confirm", name)))
+            return;
+        try
+        {
+            await SaveProfileAsync(name);
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    async void ProfileRename_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedProfile is not string name)
+        {
+            Status.Pending(Loc.S("settings.pick_backup"));
+            return;
+        }
+        string? newName = await AskNameAsync(Loc.S("profile.rename"), name);
+        if (newName is null || newName == name)
+            return;
+        try
+        {
+            Directory.Move(Path.Combine(BackupRoot, name), Path.Combine(BackupRoot, newName));
+            RefreshBackups(newName);
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    void ProfileCopy_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedProfile is not string name)
+        {
+            Status.Pending(Loc.S("settings.pick_backup"));
+            return;
+        }
+        try
+        {
+            string copy = FreeName(Loc.F("profile.copy_name", name));
+            CopyFolder(Path.Combine(BackupRoot, name), Path.Combine(BackupRoot, copy));
+            RefreshBackups(copy);
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    async void ProfileDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedProfile is not string name)
+        {
+            Status.Pending(Loc.S("settings.pick_backup"));
+            return;
+        }
+        if (!await ConfirmAsync(Loc.S("profile.delete"), Loc.F("profile.delete_confirm", name)))
+            return;
+        try
+        {
+            // to the Recycle Bin, not gone for good
+            Microsoft.VisualBasic.FileIO.FileSystem.DeleteDirectory(Path.Combine(BackupRoot, name),
+                Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs, Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin);
+            RefreshBackups();
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    async void ProfileExport_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedProfile is not string name)
+        {
+            Status.Pending(Loc.S("settings.pick_backup"));
+            return;
+        }
+        var picker = new Windows.Storage.Pickers.FileSavePicker { SuggestedFileName = name };
+        picker.FileTypeChoices.Add(Loc.S("profile.file_type"), [".aulakb"]);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, App.WindowHandle);
+        var file = await picker.PickSaveFileAsync();
+        if (file is null)
+            return;
+        try
+        {
+            if (File.Exists(file.Path))
+                File.Delete(file.Path);
+            System.IO.Compression.ZipFile.CreateFromDirectory(Path.Combine(BackupRoot, name), file.Path);
+            Status.Ok(Loc.F("profile.exported", file.Name));
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    async void ProfileImport_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        picker.FileTypeFilter.Add(".aulakb");
+        picker.FileTypeFilter.Add(".zip");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, App.WindowHandle);
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+        try
+        {
+            string name = FreeName(Path.GetFileNameWithoutExtension(file.Name));
+            string dir = Path.Combine(BackupRoot, name);
+            System.IO.Compression.ZipFile.ExtractToDirectory(file.Path, dir);
+            if (!File.Exists(Path.Combine(dir, "profile.bin")))
+            {
+                Directory.Delete(dir, true);
+                throw new InvalidDataException(Loc.S("profile.import_invalid"));
+            }
+            RefreshBackups(name);
+            Status.Ok(Loc.F("profile.imported", name));
+        }
+        catch (Exception ex)
+        {
+            Status.Error(ex.Message);
+        }
+    }
+
+    static string FreeName(string name)
+    {
+        string candidate = name;
+        for (int i = 2; Directory.Exists(Path.Combine(BackupRoot, candidate)); i++)
+            candidate = $"{name} ({i})";
+        return candidate;
+    }
+
+    static void CopyFolder(string from, string to)
+    {
+        Directory.CreateDirectory(to);
+        foreach (var file in Directory.GetFiles(from))
+            File.Copy(file, Path.Combine(to, Path.GetFileName(file)));
+    }
+
+    /// <summary>Asks for a profile name; null when cancelled. Rejects characters a folder cannot have.</summary>
+    async Task<string?> AskNameAsync(string title, string suggestion)
+    {
+        var box = new TextBox { Text = suggestion, MaxLength = 60 };
+        box.SelectAll();
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = box,
+            PrimaryButtonText = Loc.S("common.continue"),
+            CloseButtonText = Loc.S("common.cancel"),
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot,
+        };
+        box.TextChanged += (_, _) => dialog.IsPrimaryButtonEnabled = IsValidName(box.Text.Trim());
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return null;
+        string name = box.Text.Trim();
+        return IsValidName(name) ? name : null;
+    }
+
+    static bool IsValidName(string name) =>
+        name.Length > 0 && name.IndexOfAny(Path.GetInvalidFileNameChars()) < 0 && !name.EndsWith('.') && !name.EndsWith(".tmp");
 
     void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
@@ -266,13 +498,20 @@ public sealed partial class SettingsPage : Page
         }
     }
 
-    void RefreshBackups()
+    void RefreshBackups(string? select = null)
     {
+        string? keep = select ?? SelectedProfile;
         BackupBox.Items.Clear();
         if (!Directory.Exists(BackupRoot))
             return;
-        foreach (var dir in Directory.GetDirectories(BackupRoot).OrderByDescending(d => d))
+        foreach (var dir in Directory.GetDirectories(BackupRoot)
+                     .Where(d => !d.EndsWith(".tmp"))
+                     .OrderByDescending(Directory.GetLastWriteTime))
             BackupBox.Items.Add(Path.GetFileName(dir));
+        if (keep is not null && BackupBox.Items.Contains(keep))
+            BackupBox.SelectedItem = keep;
+        else if (BackupBox.Items.Count > 0)
+            BackupBox.SelectedIndex = 0;
     }
 
     async Task<bool> ConfirmAsync(string title, string text)

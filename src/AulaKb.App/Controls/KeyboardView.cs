@@ -41,6 +41,9 @@ public sealed class KeyboardView : UserControl
         Content = Build(keys);
         ActualThemeChanged += (_, _) => Repaint();
         Loaded += (_, _) => Repaint();
+        // end a drag wherever the button is released (also outside a key)
+        AddHandler(PointerReleasedEvent, new Microsoft.UI.Xaml.Input.PointerEventHandler((_, _) => _pressKey = null), true);
+        PointerCaptureLost += (_, _) => _pressKey = null;
     }
 
     public LayoutKind Layout { get; }
@@ -49,6 +52,12 @@ public sealed class KeyboardView : UserControl
     public IReadOnlyList<KeyInfo> Keys { get; }
 
     public event Action<KeyInfo>? KeyClicked;
+
+    /// <summary>Raised for each key passed while dragging with the left button held (first the key the drag began on).</summary>
+    public event Action<KeyInfo>? KeyDragged;
+
+    KeyInfo? _pressKey;
+    bool _dragged;
 
     UIElement Build(IReadOnlyList<VisualKey> keys)
     {
@@ -108,7 +117,33 @@ public sealed class KeyboardView : UserControl
             }
 
             ToolTipService.SetToolTip(shape, key.Label);
-            shape.Tapped += (_, _) => KeyClicked?.Invoke(key);
+            shape.Tapped += (_, _) =>
+            {
+                if (!_dragged)
+                    KeyClicked?.Invoke(key);
+                _dragged = false;
+            };
+            shape.PointerPressed += (_, e) =>
+            {
+                if (e.GetCurrentPoint(shape).Properties.IsLeftButtonPressed)
+                {
+                    _pressKey = key;
+                    _dragged = false;
+                }
+            };
+            shape.PointerEntered += (_, e) =>
+            {
+                // dragging across keys with the button held paints every key passed
+                if (_pressKey is not null && e.GetCurrentPoint(shape).Properties.IsLeftButtonPressed && !ReferenceEquals(key, _pressKey))
+                {
+                    if (!_dragged)
+                    {
+                        _dragged = true;
+                        KeyDragged?.Invoke(_pressKey);
+                    }
+                    KeyDragged?.Invoke(key);
+                }
+            };
             shape.PointerEntered += (_, _) => { cap.Hover = true; Paint(cap); };
             shape.PointerExited += (_, _) => { cap.Hover = false; Paint(cap); };
             canvas.Children.Add(shape);

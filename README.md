@@ -12,7 +12,13 @@ WinUI 3 so it looks and moves like Windows 11 itself.
   modes rebuilt from captures of its output, previewed live on the on-screen keyboard.
 - **On-screen keyboard:** Turkish Q, UK ISO and US ANSI drawings; picked automatically from the
   active Windows keyboard layout.
-- **Settings:** debounce, tap, backup/restore of every table, factory reset.
+- **Self-define:** paint keys by clicking or dragging across them; save your own colours.
+- **Macros:** insert keys into a recorded macro, import/export macros as JSON.
+- **Profiles:** save everything on the keyboard under a name, apply, rename, duplicate,
+  export/import (`.aulakb`).
+- **Tray:** closing keeps AulaKb in the notification area (music mode keeps running); optional
+  start with Windows.
+- **Settings:** debounce, tap, factory reset.
 - **CLI:** `aulakb info | verify | dump | backup | restore | effect | factory-reset`.
 - **Languages:** Turkish and English. The UI follows the Windows preferred language by default
   (English is the fallback) and can be switched on the Settings page.

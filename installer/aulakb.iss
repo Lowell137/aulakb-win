@@ -2,7 +2,7 @@
 ; offers "run at startup", nothing needs admin rights.
 
 #define MyAppName "AulaKb"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Lowell137"
 #define MyAppExeName "AulaKb.exe"
 
@@ -42,7 +42,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
-    ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"""; \
+    ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"" --tray"; \
     Tasks: startup; Flags: uninsdeletevalue
 
 [Run]

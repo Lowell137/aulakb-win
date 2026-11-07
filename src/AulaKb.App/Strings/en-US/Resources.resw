@@ -516,4 +516,106 @@
   <data name="music.mode11" xml:space="preserve">
     <value>Running light</value>
   </data>
+  <data name="tray.open" xml:space="preserve">
+    <value>Open AulaKb</value>
+  </data>
+  <data name="tray.exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="settings.section_app" xml:space="preserve">
+    <value>App</value>
+  </data>
+  <data name="settings.tray_title" xml:space="preserve">
+    <value>Keep in the tray when closed</value>
+  </data>
+  <data name="settings.tray_desc" xml:space="preserve">
+    <value>Closing the window keeps AulaKb running in the notification area (music mode goes on). When off, closing exits</value>
+  </data>
+  <data name="settings.startup_title" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="settings.startup_desc" xml:space="preserve">
+    <value>AulaKb starts in the notification area when you sign in</value>
+  </data>
+  <data name="profile.title" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="profile.desc" xml:space="preserve">
+    <value>Everything on the keyboard (lighting, key assignments, macros) saved under a name; Apply writes it to the keyboard</value>
+  </data>
+  <data name="profile.apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="profile.more" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="profile.new" xml:space="preserve">
+    <value>New profile from keyboard</value>
+  </data>
+  <data name="profile.overwrite" xml:space="preserve">
+    <value>Save to selected profile</value>
+  </data>
+  <data name="profile.rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="profile.copy" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="profile.delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="profile.export" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="profile.import" xml:space="preserve">
+    <value>Import…</value>
+  </data>
+  <data name="profile.default_name" xml:space="preserve">
+    <value>Profile {0}</value>
+  </data>
+  <data name="profile.copy_name" xml:space="preserve">
+    <value>{0} copy</value>
+  </data>
+  <data name="profile.overwrite_confirm" xml:space="preserve">
+    <value>Replace “{0}” with the keyboard's current settings?</value>
+  </data>
+  <data name="profile.delete_confirm" xml:space="preserve">
+    <value>Move “{0}” to the Recycle Bin?</value>
+  </data>
+  <data name="profile.file_type" xml:space="preserve">
+    <value>AulaKb profile</value>
+  </data>
+  <data name="profile.exported" xml:space="preserve">
+    <value>Exported: {0}</value>
+  </data>
+  <data name="profile.imported" xml:space="preserve">
+    <value>Imported: {0}</value>
+  </data>
+  <data name="profile.import_invalid" xml:space="preserve">
+    <value>This file is not an AulaKb profile</value>
+  </data>
+  <data name="colour.save" xml:space="preserve">
+    <value>Add to colours</value>
+  </data>
+  <data name="colour.remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="macros.insert_key" xml:space="preserve">
+    <value>Insert key</value>
+  </data>
+  <data name="macros.insert_key_tt" xml:space="preserve">
+    <value>Press a key; it is added after the selected step as a press and a release</value>
+  </data>
+  <data name="macros.insert_waiting" xml:space="preserve">
+    <value>Press the key to insert…</value>
+  </data>
+  <data name="macros.export" xml:space="preserve">
+    <value>Export macros…</value>
+  </data>
+  <data name="macros.import" xml:space="preserve">
+    <value>Import macros…</value>
+  </data>
+  <data name="macros.exported" xml:space="preserve">
+    <value>{0} macros exported: {1}</value>
+  </data>
 </root>
