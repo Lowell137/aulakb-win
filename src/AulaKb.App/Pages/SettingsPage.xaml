@@ -1,0 +1,71 @@
+<Page
+    x:Class="AulaKb.App.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:AulaKb.App.Controls">
+
+    <Grid Padding="28,20,28,0" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <TextBlock x:Name="TitleText" Text="Ayarlar" Style="{StaticResource TitleTextBlockStyle}" />
+            <controls:StatusText x:Name="Status" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="4" MaxWidth="1000" Padding="0,0,0,24">
+
+                <TextBlock x:Name="SectionView" Text="Görünüm" Style="{StaticResource SectionStyle}" />
+                <controls:SettingsRow x:Name="LanguageRow" Glyph="&#xE8C1;" >
+                    <ComboBox x:Name="LanguageBox" MinWidth="220" SelectionChanged="LanguageBox_SelectionChanged">
+                        <ComboBoxItem Content="Windows" />
+                        <ComboBoxItem Content="Türkçe" />
+                        <ComboBoxItem Content="English" />
+                    </ComboBox>
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="LayoutRow" Glyph="&#xE765;" Title="Klavye düzeni" Description="Ekranda çizilen tuş dizilimi ve etiketler">
+                    <ComboBox x:Name="LayoutBox" MinWidth="220" SelectionChanged="LayoutBox_SelectionChanged" />
+                </controls:SettingsRow>
+
+                <TextBlock x:Name="SectionKeyboard" Text="Klavye" Style="{StaticResource SectionStyle}" />
+                <controls:SettingsRow x:Name="DebounceRow" Glyph="&#xE916;" Title="Debounce" Description="Çift basmayı önler; yüksek kademe gecikmeyi artırır. Varsayılan 2">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Slider x:Name="DebounceSlider" Width="200" TickFrequency="1" TickPlacement="Outside" ValueChanged="KeyboardSetting_Changed" />
+                        <TextBlock x:Name="DebounceText" Width="16" VerticalAlignment="Center" />
+                    </StackPanel>
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="TapRow" Glyph="&#xE815;" Title="Tap" Description="Dokunuş algılaması ve hassasiyeti (Tap katmanı)">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Slider x:Name="TapSlider" Width="160" ValueChanged="KeyboardSetting_Changed" />
+                        <ToggleSwitch x:Name="TapToggle" OnContent="" OffContent="" MinWidth="0" Toggled="KeyboardSetting_Changed" />
+                    </StackPanel>
+                </controls:SettingsRow>
+
+                <TextBlock x:Name="SectionBackup" Text="Yedek" Style="{StaticResource SectionStyle}" />
+                <controls:SettingsRow x:Name="BackupRow" Glyph="&#xE74E;" Title="Yedek al" Description="Işık, tuş atamaları ve makrolar Belgeler\AulaKb\Yedekler altına">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button x:Name="OpenFolderButton" Content="Klasörü aç" Click="OpenFolder_Click" />
+                        <Button x:Name="BackupButton" Content="Yedek al" Click="Backup_Click" />
+                    </StackPanel>
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="RestoreRow" Glyph="&#xE777;" Title="Yedekten geri yükle" Description="Seçilen yedek klavyedeki ayarların yerine geçer">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox x:Name="BackupBox" MinWidth="200" />
+                        <Button x:Name="RestoreButton" Content="Geri yükle" Click="Restore_Click" />
+                    </StackPanel>
+                </controls:SettingsRow>
+
+                <TextBlock x:Name="SectionMaintenance" Text="Bakım" Style="{StaticResource SectionStyle}" />
+                <controls:SettingsRow x:Name="FactoryRow" Glyph="&#xE7A7;" Title="Fabrika ayarı" Description="Tuş atamaları ve ışık Aula varsayılanına döner; makrolar ve tuş başı renkler kalır">
+                    <Button x:Name="FactoryButton" Content="Sıfırla" Click="Factory_Click" />
+                </controls:SettingsRow>
+
+                <TextBlock x:Name="SectionAbout" Text="Hakkında" Style="{StaticResource SectionStyle}" />
+                <controls:SettingsRow x:Name="AboutRow" Glyph="&#xE946;" Title="Klavye" Description="AulaKb firmware güncellemesi yapmaz, bilerek: yanlış bir firmware yazımı klavyeyi kullanılamaz hale getirebilir." />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

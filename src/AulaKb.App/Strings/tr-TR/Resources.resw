@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" />
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="app.lang" xml:space="preserve">
+    <value>tr</value>
+  </data>
+
+  <data name="nav.device" xml:space="preserve">
+    <value>Cihaz</value>
+  </data>
+  <data name="nav.lighting" xml:space="preserve">
+    <value>Işık</value>
+  </data>
+  <data name="nav.keys" xml:space="preserve">
+    <value>Tuşlar</value>
+  </data>
+  <data name="nav.macros" xml:space="preserve">
+    <value>Makrolar</value>
+  </data>
+  <data name="nav.music" xml:space="preserve">
+    <value>Müzik modu</value>
+  </data>
+
+  <data name="device.title" xml:space="preserve">
+    <value>Cihaz</value>
+  </data>
+  <data name="device.scan" xml:space="preserve">
+    <value>Aranıyor…</value>
+  </data>
+  <data name="device.searching" xml:space="preserve">
+    <value>Klavye aranıyor…</value>
+  </data>
+  <data name="device.rescan" xml:space="preserve">
+    <value>Yeniden tara</value>
+  </data>
+  <data name="device.details" xml:space="preserve">
+    <value>Ayrıntılar</value>
+  </data>
+  <data name="device.vidpid" xml:space="preserve">
+    <value>VID:PID</value>
+  </data>
+  <data name="device.identity" xml:space="preserve">
+    <value>Kimlik yanıtı</value>
+  </data>
+  <data name="device.hidpath" xml:space="preserve">
+    <value>HID yolu</value>
+  </data>
+  <data name="device.wired_firmware" xml:space="preserve">
+    <value>Kablolu · firmware {0}</value>
+  </data>
+  <data name="device.connected" xml:space="preserve">
+    <value>Bağlı</value>
+  </data>
+  <data name="device.notfound" xml:space="preserve">
+    <value>Klavye bulunamadı</value>
+  </data>
+  <data name="device.notfound_hint" xml:space="preserve">
+    <value>Aula F87 Pro'yu kabloyla tak. 2.4G alıcı şimdilik desteklenmiyor.</value>
+  </data>
+
+  <data name="common.reading" xml:space="preserve">
+    <value>Klavyeden okunuyor…</value>
+  </data>
+  <data name="common.applying" xml:space="preserve">
+    <value>Uygulanıyor…</value>
+  </data>
+  <data name="common.applied" xml:space="preserve">
+    <value>Klavyeye uygulandı</value>
+  </data>
+  <data name="common.mismatch" xml:space="preserve">
+    <value>Uygulandı ama geri okuma farklı</value>
+  </data>
+  <data name="common.synced" xml:space="preserve">
+    <value>Klavyeyle eşit</value>
+  </data>
+  <data name="common.continue" xml:space="preserve">
+    <value>Devam</value>
+  </data>
+  <data name="common.cancel" xml:space="preserve">
+    <value>İptal</value>
+  </data>
+
+  <data name="error.layer_signature" xml:space="preserve">
+    <value>Katman imzası (5A A5) yok, yazma kapatıldı.</value>
+  </data>
+  <data name="error.profile_signature" xml:space="preserve">
+    <value>Profil imzası (5A A5) yok, yazma kapatıldı.</value>
+  </data>
+  <data name="error.notfound" xml:space="preserve">
+    <value>Klavye bulunamadı. Kabloyla takılı mı?</value>
+  </data>
+  <data name="error.notfound_short" xml:space="preserve">
+    <value>Klavye bulunamadı.</value>
+  </data>
+
+  <data name="lighting.title" xml:space="preserve">
+    <value>Işık</value>
+  </data>
+  <data name="lighting.experimental" xml:space="preserve">
+    <value>{0} (deneysel)</value>
+  </data>
+  <data name="lighting.brightness" xml:space="preserve">
+    <value>Parlaklık</value>
+  </data>
+  <data name="lighting.speed" xml:space="preserve">
+    <value>Hız</value>
+  </data>
+  <data name="lighting.colour" xml:space="preserve">
+    <value>Renk</value>
+  </data>
+  <data name="lighting.colour_hint" xml:space="preserve">
+    <value>Bir renk seç, sonra klavyedeki tuşlara tıkla</value>
+  </data>
+  <data name="lighting.colourful" xml:space="preserve">
+    <value>Çok renkli</value>
+  </data>
+  <data name="lighting.custom" xml:space="preserve">
+    <value>Başka renk</value>
+  </data>
+  <data name="lighting.paint_all" xml:space="preserve">
+    <value>Hepsini boya</value>
+  </data>
+  <data name="lighting.paint_clear" xml:space="preserve">
+    <value>Hepsini söndür</value>
+  </data>
+  <data name="lighting.paint_default" xml:space="preserve">
+    <value>Aula varsayılanı</value>
+  </data>
+
+  <data name="keys.title" xml:space="preserve">
+    <value>Tuşlar</value>
+  </data>
+  <data name="keys.more" xml:space="preserve">
+    <value>Diğer</value>
+  </data>
+  <data name="keys.reset_layer" xml:space="preserve">
+    <value>Bu katmanı fabrika ayarına döndür</value>
+  </data>
+  <data name="keys.reload" xml:space="preserve">
+    <value>Klavyeden yeniden oku</value>
+  </data>
+  <data name="keys.layer_default" xml:space="preserve">
+    <value>Varsayılan</value>
+  </data>
+  <data name="keys.placeholder" xml:space="preserve">
+    <value>Değiştirmek için klavyede bir tuşa tıkla. Değiştirilmiş tuşlar renkli görünür.</value>
+  </data>
+  <data name="keys.type_key" xml:space="preserve">
+    <value>Klavye tuşu</value>
+  </data>
+  <data name="keys.type_mouse" xml:space="preserve">
+    <value>Fare</value>
+  </data>
+  <data name="keys.type_media" xml:space="preserve">
+    <value>Medya</value>
+  </data>
+  <data name="keys.type_macro" xml:space="preserve">
+    <value>Makro</value>
+  </data>
+  <data name="keys.type_command" xml:space="preserve">
+    <value>Kısayol</value>
+  </data>
+  <data name="keys.type_disabled" xml:space="preserve">
+    <value>Devre dışı</value>
+  </data>
+  <data name="keys.mouse_left" xml:space="preserve">
+    <value>Sol tık</value>
+  </data>
+  <data name="keys.mouse_right" xml:space="preserve">
+    <value>Sağ tık</value>
+  </data>
+  <data name="keys.mouse_middle" xml:space="preserve">
+    <value>Orta tık</value>
+  </data>
+  <data name="keys.mouse_back" xml:space="preserve">
+    <value>Geri</value>
+  </data>
+  <data name="keys.mouse_forward" xml:space="preserve">
+    <value>İleri</value>
+  </data>
+  <data name="keys.macro_none" xml:space="preserve">
+    <value>Makro yok</value>
+  </data>
+  <data name="keys.repeat_count" xml:space="preserve">
+    <value>Belirli sayıda</value>
+  </data>
+  <data name="keys.repeat_while" xml:space="preserve">
+    <value>Basılı tuttukça</value>
+  </data>
+  <data name="keys.repeat_until" xml:space="preserve">
+    <value>Bir tuşa basılana kadar</value>
+  </data>
+  <data name="keys.reset_key" xml:space="preserve">
+    <value>Varsayılan</value>
+  </data>
+  <data name="keys.reset_key_tt" xml:space="preserve">
+    <value>Bu tuşu fabrika ayarına döndür</value>
+  </data>
+  <data name="keys.default_fmt" xml:space="preserve">
+    <value>Varsayılan: {0}</value>
+  </data>
+
+  <data name="macros.title" xml:space="preserve">
+    <value>Makrolar</value>
+  </data>
+  <data name="macros.new" xml:space="preserve">
+    <value>Yeni</value>
+  </data>
+  <data name="macros.new_tt" xml:space="preserve">
+    <value>Yeni makro</value>
+  </data>
+  <data name="macros.delete_tt" xml:space="preserve">
+    <value>Seçili makroyu sil</value>
+  </data>
+  <data name="macros.name_ph" xml:space="preserve">
+    <value>Makro adı</value>
+  </data>
+  <data name="macros.status_empty" xml:space="preserve">
+    <value>Klavyede makro yok</value>
+  </data>
+  <data name="macros.status_count" xml:space="preserve">
+    <value>{0} makro</value>
+  </data>
+  <data name="macros.record" xml:space="preserve">
+    <value>Kaydet</value>
+  </data>
+  <data name="macros.stop" xml:space="preserve">
+    <value>Durdur</value>
+  </data>
+  <data name="macros.empty_create" xml:space="preserve">
+    <value>Soldan “Yeni” ile bir makro oluştur.</value>
+  </data>
+  <data name="macros.empty" xml:space="preserve">
+    <value>“Kaydet”e bas, tuşlara bas, bitince durdur. Aradaki süreler de kaydedilir.</value>
+  </data>
+  <data name="macros.recording" xml:space="preserve">
+    <value>Kaydediliyor… tuşlara bas.</value>
+  </data>
+  <data name="macros.status_recording" xml:space="preserve">
+    <value>Kaydediliyor</value>
+  </data>
+  <data name="macros.status_saving" xml:space="preserve">
+    <value>Kaydediliyor…</value>
+  </data>
+  <data name="macros.step_delay" xml:space="preserve">
+    <value>Sonra bekle</value>
+  </data>
+  <data name="macros.delay_all" xml:space="preserve">
+    <value>Hepsine uygula</value>
+  </data>
+  <data name="macros.delete_step_tt" xml:space="preserve">
+    <value>Adımı sil</value>
+  </data>
+  <data name="macros.footer" xml:space="preserve">
+    <value>Bir makroyu tuşa atamak için Tuşlar sayfasında “Makro”yu seç.</value>
+  </data>
+  <data name="macros.too_long" xml:space="preserve">
+    <value>Makrolar çok uzun ({0}/{1} bayt), adım ya da makro sil</value>
+  </data>
+  <data name="macros.saved" xml:space="preserve">
+    <value>Klavyeye kaydedildi</value>
+  </data>
+  <data name="macros.mismatch" xml:space="preserve">
+    <value>Kaydedildi ama geri okuma farklı</value>
+  </data>
+  <data name="macros.new_name" xml:space="preserve">
+    <value>Makro {0}</value>
+  </data>
+
+  <data name="music.title" xml:space="preserve">
+    <value>Müzik modu</value>
+  </data>
+  <data name="music.row_title" xml:space="preserve">
+    <value>Müzik modu</value>
+  </data>
+  <data name="music.row_desc" xml:space="preserve">
+    <value>Bilgisayarda çalan sese göre ışık. Uygulama açıkken çalışır, klavyeye kalıcı bir şey yazmaz</value>
+  </data>
+  <data name="music.on" xml:space="preserve">
+    <value>Açık</value>
+  </data>
+  <data name="music.off" xml:space="preserve">
+    <value>Kapalı</value>
+  </data>
+  <data name="music.off_status2" xml:space="preserve">
+    <value>Kapalı, klavye kayıtlı efektine döndü</value>
+  </data>
+  <data name="music.playing" xml:space="preserve">
+    <value>Çalışıyor, bir şey çal</value>
+  </data>
+  <data name="music.style" xml:space="preserve">
+    <value>Görünüm</value>
+  </data>
+  <data name="music.style_spectrum" xml:space="preserve">
+    <value>Spektrum</value>
+  </data>
+  <data name="music.style_pulse" xml:space="preserve">
+    <value>Nabız</value>
+  </data>
+  <data name="music.style_wave" xml:space="preserve">
+    <value>Dalga</value>
+  </data>
+  <data name="music.gain" xml:space="preserve">
+    <value>Kazanç</value>
+  </data>
+  <data name="music.gain_desc" xml:space="preserve">
+    <value>Sessiz müzikte artır</value>
+  </data>
+  <data name="music.smooth" xml:space="preserve">
+    <value>Yumuşaklık</value>
+  </data>
+  <data name="music.smooth_desc" xml:space="preserve">
+    <value>Işıkların ne kadar yavaş söneceği</value>
+  </data>
+  <data name="music.colour_title" xml:space="preserve">
+    <value>Renk</value>
+  </data>
+  <data name="music.colourful" xml:space="preserve">
+    <value>Çok renkli</value>
+  </data>
+
+  <data name="settings.title" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="settings.section_view" xml:space="preserve">
+    <value>Görünüm</value>
+  </data>
+  <data name="settings.section_keyboard" xml:space="preserve">
+    <value>Klavye</value>
+  </data>
+  <data name="settings.section_backup" xml:space="preserve">
+    <value>Yedek</value>
+  </data>
+  <data name="settings.section_maintenance" xml:space="preserve">
+    <value>Bakım</value>
+  </data>
+  <data name="settings.section_about" xml:space="preserve">
+    <value>Hakkında</value>
+  </data>
+  <data name="settings.language_title" xml:space="preserve">
+    <value>Dil</value>
+  </data>
+  <data name="settings.language_desc" xml:space="preserve">
+    <value>Arayüz dili. “Windows” sistem dilini izler.</value>
+  </data>
+  <data name="settings.language_system" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="settings.language_tr" xml:space="preserve">
+    <value>Türkçe</value>
+  </data>
+  <data name="settings.language_en" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="settings.layout_title" xml:space="preserve">
+    <value>Klavye düzeni</value>
+  </data>
+  <data name="settings.layout_desc" xml:space="preserve">
+    <value>Ekranda çizilen tuş dizilimi ve etiketler</value>
+  </data>
+  <data name="settings.layout_changed" xml:space="preserve">
+    <value>Düzen değişti</value>
+  </data>
+  <data name="settings.debounce" xml:space="preserve">
+    <value>Debounce</value>
+  </data>
+  <data name="settings.debounce_desc" xml:space="preserve">
+    <value>Çift basmayı önler; yüksek kademe gecikmeyi artırır. Varsayılan 2</value>
+  </data>
+  <data name="settings.tap" xml:space="preserve">
+    <value>Tap</value>
+  </data>
+  <data name="settings.tap_desc" xml:space="preserve">
+    <value>Dokunuş algılaması ve hassasiyeti (Tap katmanı)</value>
+  </data>
+  <data name="settings.backup_title" xml:space="preserve">
+    <value>Yedek al</value>
+  </data>
+  <data name="settings.backup_desc" xml:space="preserve">
+    <value>Işık, tuş atamaları ve makrolar Belgeler\AulaKb\Yedekler altına kaydedilir</value>
+  </data>
+  <data name="settings.backup_open" xml:space="preserve">
+    <value>Klasörü aç</value>
+  </data>
+  <data name="settings.backup_btn" xml:space="preserve">
+    <value>Yedek al</value>
+  </data>
+  <data name="settings.backup_doing" xml:space="preserve">
+    <value>Yedek alınıyor…</value>
+  </data>
+  <data name="settings.backup_done" xml:space="preserve">
+    <value>Yedek alındı: {0}</value>
+  </data>
+  <data name="settings.restore_title" xml:space="preserve">
+    <value>Yedekten geri yükle</value>
+  </data>
+  <data name="settings.restore_desc" xml:space="preserve">
+    <value>Seçilen yedek klavyedeki ayarların yerine geçer</value>
+  </data>
+  <data name="settings.restore_ph" xml:space="preserve">
+    <value>Yedek seç</value>
+  </data>
+  <data name="settings.restore_btn" xml:space="preserve">
+    <value>Geri yükle</value>
+  </data>
+  <data name="settings.pick_backup" xml:space="preserve">
+    <value>Önce bir yedek seç</value>
+  </data>
+  <data name="settings.restore_confirm_title" xml:space="preserve">
+    <value>Yedeği geri yükle</value>
+  </data>
+  <data name="settings.restore_confirm" xml:space="preserve">
+    <value>{0} klavyeye yazılacak ve şu anki ayarların yerine geçecek.</value>
+  </data>
+  <data name="settings.restore_doing" xml:space="preserve">
+    <value>Geri yükleniyor…</value>
+  </data>
+  <data name="settings.restored" xml:space="preserve">
+    <value>Geri yüklendi: {0}</value>
+  </data>
+  <data name="settings.factory_title" xml:space="preserve">
+    <value>Fabrika ayarı</value>
+  </data>
+  <data name="settings.factory_desc" xml:space="preserve">
+    <value>Tuş atamaları ve ışık Aula varsayılanına döner; makrolar ve tuş başı renkler kalır</value>
+  </data>
+  <data name="settings.factory_btn" xml:space="preserve">
+    <value>Sıfırla</value>
+  </data>
+  <data name="settings.factory_confirm_title" xml:space="preserve">
+    <value>Fabrika ayarına döndür</value>
+  </data>
+  <data name="settings.factory_confirm" xml:space="preserve">
+    <value>Tuş atamaları ve ışık Aula varsayılanına döner. İstersen önce yedek al.</value>
+  </data>
+  <data name="settings.resetting" xml:space="preserve">
+    <value>Sıfırlanıyor…</value>
+  </data>
+  <data name="settings.factory_done" xml:space="preserve">
+    <value>Fabrika ayarına döndü</value>
+  </data>
+  <data name="settings.about_title" xml:space="preserve">
+    <value>Klavye</value>
+  </data>
+  <data name="settings.about_desc" xml:space="preserve">
+    <value>AulaKb firmware güncellemesi yapmaz, bilerek: yanlış bir firmware yazımı klavyeyi kullanılamaz hale getirebilir.</value>
+  </data>
+  <data name="settings.restart_prompt_title" xml:space="preserve">
+    <value>Dil değişti</value>
+  </data>
+  <data name="settings.restart_prompt" xml:space="preserve">
+    <value>Arayüz dili uygulama yeniden başlatıldığında tamamen uygulanır.</value>
+  </data>
+  <data name="settings.restart_now" xml:space="preserve">
+    <value>Şimdi yeniden başlat</value>
+  </data>
+  <data name="settings.restart_later" xml:space="preserve">
+    <value>Sonra</value>
+  </data>
+</root>

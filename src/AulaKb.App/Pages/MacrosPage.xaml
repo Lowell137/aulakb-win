@@ -1,0 +1,113 @@
+<Page
+    x:Class="AulaKb.App.Pages.MacrosPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:AulaKb.App.Controls">
+
+    <Grid Padding="28,20,28,24" RowSpacing="16">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1000" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ListColumn.Width" Value="*" />
+                        <Setter Target="EditorColumn.Width" Value="0" />
+                        <Setter Target="ListPane.(Grid.RowSpan)" Value="1" />
+                        <Setter Target="ListPane.MaxHeight" Value="190" />
+                        <Setter Target="EditorPane.(Grid.Column)" Value="0" />
+                        <Setter Target="EditorPane.(Grid.Row)" Value="1" />
+                        <Setter Target="EditorPane.(Grid.RowSpan)" Value="1" />
+                        <Setter Target="Panes.ColumnSpacing" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <TextBlock x:Name="TitleText" Text="Makrolar" Style="{StaticResource TitleTextBlockStyle}" />
+            <controls:StatusText x:Name="Status" />
+        </Grid>
+
+        <Grid Grid.Row="1" x:Name="Panes" ColumnSpacing="16" RowSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ListColumn" Width="240" />
+                <ColumnDefinition x:Name="EditorColumn" Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="ListPane" Grid.RowSpan="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="{StaticResource OverlayCornerRadius}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="MacroList" SelectionMode="Single" SelectionChanged="MacroList_SelectionChanged" Padding="0,4" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" Padding="8">
+                    <Button x:Name="NewButton" Click="New_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE710;" FontSize="14" />
+                            <TextBlock x:Name="NewText" Text="Yeni" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="DeleteButton" Click="Delete_Click" Background="Transparent" BorderThickness="0">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Column="1" Grid.RowSpan="2" x:Name="EditorPane" RowSpacing="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="{StaticResource OverlayCornerRadius}" Padding="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="NameBox" PlaceholderText="Makro adı" MaxLength="32" TextChanged="NameBox_TextChanged" />
+                    <ToggleButton Grid.Column="1" x:Name="RecordButton" Checked="Record_Checked" Unchecked="Record_Unchecked">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon x:Name="RecordIcon" Glyph="&#xE7C8;" FontSize="14" />
+                            <TextBlock x:Name="RecordText" Text="Kaydet" />
+                        </StackPanel>
+                    </ToggleButton>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <ListView x:Name="EventList" SelectionMode="Single" SelectionChanged="EventList_SelectionChanged" />
+                    <TextBlock x:Name="EmptyText" Text="“Kaydet”e bas, tuşlara bas, bitince durdur. Aradaki süreler de kaydedilir." TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="320" TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </Grid>
+
+                <StackPanel Grid.Row="2" x:Name="StepBar" Orientation="Horizontal" Spacing="8" Visibility="Collapsed">
+                    <TextBlock x:Name="DelayLabel" Text="Sonra bekle" VerticalAlignment="Center" />
+                    <NumberBox x:Name="DelayBox" Width="120" Minimum="0" Maximum="65535" SpinButtonPlacementMode="Compact" ValueChanged="DelayBox_ValueChanged" />
+                    <TextBlock Text="ms" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <Button x:Name="DelayAllButton" Content="Hepsine uygula" Click="DelayAll_Click" />
+                    <Button x:Name="DeleteEventButton" Click="DeleteEvent_Click" Background="Transparent" BorderThickness="0">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <TextBlock x:Name="FooterText" Grid.Row="2" Text="Bir makroyu tuşa atamak için Tuşlar sayfasında “Makro”yu seç." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+    </Grid>
+</Page>

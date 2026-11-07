@@ -1,0 +1,63 @@
+<Page
+    x:Class="AulaKb.App.Pages.DevicePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:AulaKb.App.Controls">
+
+    <Grid Padding="28,20,28,24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <TextBlock x:Name="TitleText" Text="Cihaz" Style="{StaticResource TitleTextBlockStyle}" />
+            <controls:StatusText x:Name="Status" />
+        </Grid>
+
+        <StackPanel Grid.Row="1" Spacing="4" MaxWidth="1000">
+            <Border Style="{StaticResource RowStyle}" Padding="20,16">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Width="56" Height="56" CornerRadius="28" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                        <FontIcon x:Name="DeviceIcon" Glyph="&#xE765;" FontSize="26" />
+                    </Grid>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock x:Name="ProductText" Text="Klavye aranıyor…" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock x:Name="SubText" Style="{StaticResource RowDescriptionStyle}" />
+                    </StackPanel>
+                    <Button Grid.Column="2" VerticalAlignment="Center" Click="Rescan_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14" />
+                            <TextBlock x:Name="RescanText" Text="Yeniden tara" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Expander x:Name="DetailsExpander" Header="Ayrıntılar" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Visibility="Collapsed">
+                <Grid ColumnSpacing="24" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="VidPidLabel" Text="VID:PID" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock x:Name="VidPidText" Grid.Column="1" IsTextSelectionEnabled="True" />
+                    <TextBlock x:Name="IdentityLabel" Grid.Row="1" Text="Kimlik yanıtı" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock x:Name="RawText" Grid.Row="1" Grid.Column="1" FontFamily="Cascadia Mono, Consolas" IsTextSelectionEnabled="True" />
+                    <TextBlock x:Name="PathLabel" Grid.Row="2" Text="HID yolu" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock x:Name="PathText" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" FontFamily="Cascadia Mono, Consolas" FontSize="12" IsTextSelectionEnabled="True" />
+                </Grid>
+            </Expander>
+        </StackPanel>
+    </Grid>
+</Page>

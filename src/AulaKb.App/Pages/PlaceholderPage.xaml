@@ -1,0 +1,10 @@
+<Page
+    x:Class="AulaKb.App.Pages.PlaceholderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Padding="36,24,36,36" Spacing="16">
+        <TextBlock x:Name="TitleText" Style="{StaticResource TitleTextBlockStyle}" />
+        <TextBlock Text="Bu bölüm henüz yok." Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+    </StackPanel>
+</Page>

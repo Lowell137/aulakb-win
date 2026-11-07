@@ -1,0 +1,46 @@
+<Page
+    x:Class="AulaKb.App.Pages.MusicPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:AulaKb.App.Controls">
+
+    <Grid Padding="28,20,28,0" RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <TextBlock x:Name="TitleText" Text="Müzik modu" Style="{StaticResource TitleTextBlockStyle}" />
+            <controls:StatusText x:Name="Status" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="4" MaxWidth="1000" Padding="0,0,0,24">
+                <controls:SettingsRow x:Name="OnRow" Glyph="&#xE8D6;" Title="Müzik modu" Description="Bilgisayarda çalan sese göre ışık. Uygulama açıkken çalışır, klavyeye kalıcı bir şey yazmaz">
+                    <ToggleSwitch x:Name="OnToggle" Toggled="OnToggle_Toggled" />
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="ViewRow" Glyph="&#xE9E9;" Title="Görünüm">
+                    <ComboBox x:Name="StyleBox" SelectedIndex="0" MinWidth="200" SelectionChanged="Settings_Changed">
+                        <ComboBoxItem Content="Spektrum" />
+                        <ComboBoxItem Content="Nabız" />
+                        <ComboBoxItem Content="Dalga" />
+                    </ComboBox>
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="GainRow" Glyph="&#xE767;" Title="Kazanç" Description="Sessiz müzikte artır">
+                    <Slider x:Name="GainSlider" Width="220" Minimum="0.5" Maximum="4" StepFrequency="0.1" Value="1.5" ValueChanged="Settings_Changed" />
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="SmoothRow" Glyph="&#xE9D9;" Title="Yumuşaklık" Description="Işıkların ne kadar yavaş söneceği">
+                    <Slider x:Name="SmoothSlider" Width="220" Minimum="0" Maximum="9" StepFrequency="1" Value="4" ValueChanged="Settings_Changed" />
+                </controls:SettingsRow>
+                <controls:SettingsRow x:Name="ColourRow" Glyph="&#xE790;" Title="Renk">
+                    <VariableSizedWrapGrid x:Name="Swatches" Orientation="Horizontal" ItemWidth="40" ItemHeight="40" MaximumRowsOrColumns="9">
+                        <ToggleButton x:Name="RainbowButton" IsChecked="True" Width="32" Height="32" Padding="0" CornerRadius="16" Click="Settings_Changed">
+                            <FontIcon Glyph="&#xE790;" FontSize="14" />
+                        </ToggleButton>
+                    </VariableSizedWrapGrid>
+                </controls:SettingsRow>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
