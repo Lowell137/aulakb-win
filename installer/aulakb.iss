@@ -22,6 +22,8 @@ SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayName={#MyAppName}
 ArchitecturesInstallIn64BitMode=x64compatible
+SetupIconFile=..\src\AulaKb.App\Assets\AppIcon.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
