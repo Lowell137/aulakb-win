@@ -233,13 +233,7 @@ public sealed partial class LightingPage : Page
             else if (effect.Id != Effects.Off && _profile.GetColourSlot(effect.Id) != LightProfile.ColourfulSlot)
                 active = _palette.Get(effect.Id, _profile.GetColourSlot(effect.Id));
         }
-        var accent = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
-        foreach (Button swatch in Swatches.Children.OfType<Button>().Where(b => b.Tag is Rgb))
-        {
-            bool on = active is Rgb a && (Rgb)swatch.Tag == a;
-            swatch.BorderBrush = on ? accent : null;
-            swatch.BorderThickness = new Thickness(on ? 3 : 0);
-        }
+        CustomSwatch.Highlight(Swatches, CustomButton, active);
     }
 
     // ---- self-define painting ----

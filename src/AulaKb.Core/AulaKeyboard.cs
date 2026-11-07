@@ -114,17 +114,26 @@ public sealed class AulaKeyboard : IDisposable
     {
         lock (_io)
         {
-            SetWithRetry(BuildFrame(command, sub, length, ReadOnlySpan<byte>.Empty));
-            Thread.Sleep(20);
-
+            // The keyboard answers with whatever report it last held until the new reply is
+            // ready (e.g. a 0x08 direct frame sent just before), so poll until the command
+            // matches and re-send the request once in a while.
+            var request = BuildFrame(command, sub, length, ReadOnlySpan<byte>.Empty);
             var response = new byte[ReportLength];
-            response[0] = ReportId;
-            if (!_device.GetFeature(response))
-                throw new IOException($"GetFeature failed for command 0x{command:X2}.");
-            if (response[1] != command)
-                throw new IOException($"Unexpected reply: expected command 0x{command:X2}, got 0x{response[1]:X2}.");
-
-            return response.AsSpan(8, length).ToArray();
+            byte got = 0;
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                if (attempt % 3 == 0)
+                    SetWithRetry(request);
+                Thread.Sleep(20 + attempt * 15);
+                Array.Clear(response);
+                response[0] = ReportId;
+                if (!_device.GetFeature(response))
+                    throw new IOException($"GetFeature failed for command 0x{command:X2}.");
+                got = response[1];
+                if (got == command)
+                    return response.AsSpan(8, length).ToArray();
+            }
+            throw new IOException($"Unexpected reply: expected command 0x{command:X2}, got 0x{got:X2}.");
         }
     }
 

@@ -357,7 +357,7 @@
     <value>Arayüz dili. “Windows” sistem dilini izler.</value>
   </data>
   <data name="settings.language_system" xml:space="preserve">
-    <value>Windows</value>
+    <value>Windows dili</value>
   </data>
   <data name="settings.language_tr" xml:space="preserve">
     <value>Türkçe</value>
@@ -469,5 +469,50 @@
   </data>
   <data name="settings.restart_later" xml:space="preserve">
     <value>Sonra</value>
+  </data>
+  <data name="settings.layout_auto" xml:space="preserve">
+    <value>Otomatik (Windows: {0})</value>
+  </data>
+  <data name="layout.tr" xml:space="preserve">
+    <value>Türkçe Q (ISO)</value>
+  </data>
+  <data name="layout.uk" xml:space="preserve">
+    <value>İngilizce (ISO, UK)</value>
+  </data>
+  <data name="layout.us" xml:space="preserve">
+    <value>İngilizce (ANSI, ABD)</value>
+  </data>
+  <data name="music.mode1" xml:space="preserve">
+    <value>Ses dansı · yumuşak</value>
+  </data>
+  <data name="music.mode2" xml:space="preserve">
+    <value>Göz kamaştırıcı · rock</value>
+  </data>
+  <data name="music.mode3" xml:space="preserve">
+    <value>Bulutlar yükselir, kar uçuşur · rutin</value>
+  </data>
+  <data name="music.mode4" xml:space="preserve">
+    <value>Işık alanı · vokal</value>
+  </data>
+  <data name="music.mode5" xml:space="preserve">
+    <value>Şırıl şırıl dere · normal</value>
+  </data>
+  <data name="music.mode6" xml:space="preserve">
+    <value>Çiçek açma · tutku</value>
+  </data>
+  <data name="music.mode7" xml:space="preserve">
+    <value>Yeşim tabağa düşen inciler · rock</value>
+  </data>
+  <data name="music.mode8" xml:space="preserve">
+    <value>Ayı izleyen bulutlar · tutku</value>
+  </data>
+  <data name="music.mode9" xml:space="preserve">
+    <value>Dağlar ve akan sular · normal</value>
+  </data>
+  <data name="music.mode10" xml:space="preserve">
+    <value>İpek gibi yağmur · normal</value>
+  </data>
+  <data name="music.mode11" xml:space="preserve">
+    <value>Koşan ışık</value>
   </data>
 </root>

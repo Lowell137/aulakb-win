@@ -53,7 +53,7 @@ public sealed class KeyboardView : UserControl
     UIElement Build(IReadOnlyList<VisualKey> keys)
     {
         const double pad = 4;
-        const double inset = 1.2; // gap between caps
+        const double inset = 2.2; // half the gap between caps (layout rects are whole units)
         double minX = keys.SelectMany(k => k.Rects).Min(r => r.X);
         double minY = keys.SelectMany(k => k.Rects).Min(r => r.Y);
         double maxX = keys.SelectMany(k => k.Rects).Max(r => r.X + r.W);
@@ -75,7 +75,7 @@ public sealed class KeyboardView : UserControl
                 {
                     Width = r.W - 2 * inset,
                     Height = r.H - 2 * inset,
-                    CornerRadius = new CornerRadius(3),
+                    CornerRadius = new CornerRadius(4),
                     Background = cap.Face,
                     BorderBrush = cap.Stroke,
                     BorderThickness = new Thickness(0.6),
@@ -129,22 +129,48 @@ public sealed class KeyboardView : UserControl
         return new Viewbox { Child = canvas, Stretch = Stretch.Uniform, HorizontalAlignment = HorizontalAlignment.Center };
     }
 
+    static readonly FontFamily IconFont = new("Segoe Fluent Icons, Segoe MDL2 Assets");
+
     static Grid Legend(string label, Brush brush)
     {
-        bool single = !label.Contains('\n') && label.Length <= 2;
+        if (VisualLayout.IsIcon(label))
+        {
+            var icon = new FontIcon
+            {
+                Glyph = label,
+                FontFamily = IconFont,
+                FontSize = 9,
+                Foreground = brush,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            return new Grid { Children = { icon } };
+        }
+
+        bool twoLine = label.Contains('\n');
+        // letters and F1-F12 large; every word label (Esc, Ctrl, Shift…) one smaller size
+        bool character = !twoLine && (label.Length == 1 || (label.Length is 2 or 3 && label[0] == 'F' && char.IsDigit(label[^1])));
         var text = new TextBlock
         {
             Text = label,
-            FontSize = single ? 8.5 : label.Contains('\n') ? 6.4 : 6.2,
-            FontWeight = single ? Microsoft.UI.Text.FontWeights.Normal : Microsoft.UI.Text.FontWeights.Normal,
+            FontSize = twoLine ? 8 : character ? 9.5 : 7.5,
             Foreground = brush,
             TextAlignment = TextAlignment.Center,
-            TextWrapping = TextWrapping.Wrap,
-            LineHeight = 7.4,
-            LineStackingStrategy = LineStackingStrategy.BlockLineHeight,
+            TextWrapping = TextWrapping.NoWrap,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        if (twoLine)
+        {
+            // shifted symbol above, base symbol below, evenly spaced
+            text.LineHeight = 9.5;
+            text.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+        }
+        else
+        {
+            // centre on the cap height, not the line box (which carries descender space)
+            text.TextLineBounds = TextLineBounds.Tight;
+        }
         return new Grid { Children = { text } };
     }
 

@@ -24,6 +24,8 @@
   <ItemGroup>
     <!-- UI strings for Loc: English neutral, Turkish override set. -->
     <PRIResource Include="Strings\**\Resources.resw" />
+    <!-- Taskbar icon for AppWindow.SetIcon, loaded from the app folder. -->
+    <Content Include="Assets\AppIcon.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Unpackaged publish misses the compiled XBFs and the app PRI (deploy targets only

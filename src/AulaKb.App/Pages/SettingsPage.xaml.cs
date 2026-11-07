@@ -36,6 +36,9 @@ public sealed partial class SettingsPage : Page
         SectionAbout.Text = Loc.S("settings.section_about");
         LanguageRow.Title = Loc.S("settings.language_title");
         LanguageRow.Description = Loc.S("settings.language_desc");
+        ((ComboBoxItem)LanguageBox.Items[0]).Content = Loc.S("settings.language_system");
+        ((ComboBoxItem)LanguageBox.Items[1]).Content = Loc.S("settings.language_tr");
+        ((ComboBoxItem)LanguageBox.Items[2]).Content = Loc.S("settings.language_en");
         LayoutRow.Title = Loc.S("settings.layout_title");
         LayoutRow.Description = Loc.S("settings.layout_desc");
         DebounceRow.Title = Loc.S("settings.debounce");
@@ -55,12 +58,18 @@ public sealed partial class SettingsPage : Page
         AboutRow.Title = Loc.S("settings.about_title");
         AboutRow.Description = Loc.S("settings.about_desc");
 
+        // First entry follows Windows; Tag null. The rest pin a drawing.
+        var auto = new ComboBoxItem { Content = Loc.F("settings.layout_auto", VisualLayout.Name(VisualLayout.FromWindows())), Tag = null };
+        LayoutBox.Items.Add(auto);
+        bool isAuto = VisualLayout.IsAuto;
+        if (isAuto)
+            LayoutBox.SelectedItem = auto;
         var current = VisualLayout.Current;
-        foreach (var (kind, name) in VisualLayout.All)
+        foreach (var kind in VisualLayout.All)
         {
-            var item = new ComboBoxItem { Content = name, Tag = kind };
+            var item = new ComboBoxItem { Content = VisualLayout.Name(kind), Tag = kind };
             LayoutBox.Items.Add(item);
-            if (kind == current)
+            if (!isAuto && kind == current)
                 LayoutBox.SelectedItem = item;
         }
 
@@ -115,11 +124,13 @@ public sealed partial class SettingsPage : Page
 
     void LayoutBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (LayoutBox.SelectedItem is ComboBoxItem { Tag: LayoutKind kind } && kind != VisualLayout.Current)
-        {
-            VisualLayout.Current = kind;
-            Status.Ok(Loc.S("settings.layout_changed"));
-        }
+        if (LayoutBox.SelectedItem is not ComboBoxItem item)
+            return;
+        var kind = item.Tag as LayoutKind?;
+        if (kind is null == VisualLayout.IsAuto && (kind is null || kind == VisualLayout.Current))
+            return;
+        VisualLayout.Set(kind);
+        Status.Ok(Loc.S("settings.layout_changed"));
     }
 
     void LanguageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

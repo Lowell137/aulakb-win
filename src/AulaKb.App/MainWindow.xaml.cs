@@ -16,6 +16,10 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 860));
+        // Taskbar / Alt+Tab icon (unpackaged windows do not pick up the exe's embedded icon).
+        string icon = Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico");
+        if (File.Exists(icon))
+            AppWindow.SetIcon(icon);
 
         NavDevice.Content = Loc.S("nav.device");
         NavLighting.Content = Loc.S("nav.lighting");
@@ -37,8 +41,18 @@ public sealed partial class MainWindow : Window
         int index = 0;
         var timer = DispatcherQueue.CreateTimer();
         timer.Interval = TimeSpan.FromMilliseconds(2500);
-        timer.Tick += (_, _) =>
+        string shots = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AulaKb", "selftest");
+        Directory.CreateDirectory(shots);
+        timer.Tick += async (_, _) =>
         {
+            if (index > 0)
+                await SnapshotAsync(Path.Combine(shots, $"{index}-{(Nav.SelectedItem as NavigationViewItem)?.Tag ?? "settings"}.png"));
+            if (ContentFrame.Content is MusicPage music)
+            {
+                timer.Stop();
+                await music.SelfTestAsync(name => SnapshotAsync(Path.Combine(shots, name + ".png")));
+                timer.Start();
+            }
             if (index < pages.Count)
             {
                 Nav.SelectedItem = pages[index++];
@@ -61,6 +75,34 @@ public sealed partial class MainWindow : Window
             Close();
         };
         timer.Start();
+    }
+
+    /// <summary>Saves what the window shows (selftest only), so layout can be checked without a screen grab.</summary>
+    async Task SnapshotAsync(string path)
+    {
+        try
+        {
+            var rtb = new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+            await rtb.RenderAsync(Content);
+            var pixels = await rtb.GetPixelsAsync();
+            using var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream();
+            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, stream);
+            double dpi = 96 * (Content.XamlRoot?.RasterizationScale ?? 1);
+            encoder.SetPixelData(Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8, Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
+                (uint)rtb.PixelWidth, (uint)rtb.PixelHeight, dpi, dpi, System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeBufferExtensions.ToArray(pixels));
+            await encoder.FlushAsync();
+            var bytes = new byte[stream.Size];
+            using (var reader = new Windows.Storage.Streams.DataReader(stream.GetInputStreamAt(0)))
+            {
+                await reader.LoadAsync((uint)stream.Size);
+                reader.ReadBytes(bytes);
+            }
+            await File.WriteAllBytesAsync(path, bytes);
+        }
+        catch (Exception ex)
+        {
+            await File.WriteAllTextAsync(path + ".txt", ex.ToString());
+        }
     }
 
     void Nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

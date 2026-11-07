@@ -358,7 +358,7 @@
     <value>UI language. “Windows” follows the system preferred language.</value>
   </data>
   <data name="settings.language_system" xml:space="preserve">
-    <value>Windows</value>
+    <value>Windows language</value>
   </data>
   <data name="settings.language_tr" xml:space="preserve">
     <value>Türkçe</value>
@@ -470,5 +470,50 @@
   </data>
   <data name="settings.restart_later" xml:space="preserve">
     <value>Later</value>
+  </data>
+  <data name="settings.layout_auto" xml:space="preserve">
+    <value>Automatic (Windows: {0})</value>
+  </data>
+  <data name="layout.tr" xml:space="preserve">
+    <value>Turkish Q (ISO)</value>
+  </data>
+  <data name="layout.uk" xml:space="preserve">
+    <value>English (ISO, UK)</value>
+  </data>
+  <data name="layout.us" xml:space="preserve">
+    <value>English (ANSI, US)</value>
+  </data>
+  <data name="music.mode1" xml:space="preserve">
+    <value>Audio dance · soft</value>
+  </data>
+  <data name="music.mode2" xml:space="preserve">
+    <value>Dazzling · rock</value>
+  </data>
+  <data name="music.mode3" xml:space="preserve">
+    <value>Clouds rise, snow flies · routine</value>
+  </data>
+  <data name="music.mode4" xml:space="preserve">
+    <value>Light field · voice</value>
+  </data>
+  <data name="music.mode5" xml:space="preserve">
+    <value>Gurgling stream · regular</value>
+  </data>
+  <data name="music.mode6" xml:space="preserve">
+    <value>Blooming · passion</value>
+  </data>
+  <data name="music.mode7" xml:space="preserve">
+    <value>Pearls on a jade plate · rock</value>
+  </data>
+  <data name="music.mode8" xml:space="preserve">
+    <value>Clouds follow the moon · passion</value>
+  </data>
+  <data name="music.mode9" xml:space="preserve">
+    <value>Mountains and flowing water · regular</value>
+  </data>
+  <data name="music.mode10" xml:space="preserve">
+    <value>Rain like silk · regular</value>
+  </data>
+  <data name="music.mode11" xml:space="preserve">
+    <value>Running light</value>
   </data>
 </root>

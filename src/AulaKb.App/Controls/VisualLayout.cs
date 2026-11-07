@@ -33,12 +33,14 @@ public static class VisualLayout
     // LED indices of the keys we restyle (column * 6 + row).
     const int Esc = 0, Grave = 1, LShift = 4, Backslash = 80, Enter = 81, Space = 35;
 
-    public static readonly IReadOnlyList<(LayoutKind Kind, string Name)> All =
-    [
-        (LayoutKind.TurkishQIso, "Türkçe Q (ISO)"),
-        (LayoutKind.EnglishIso, "İngilizce (ISO, UK)"),
-        (LayoutKind.EnglishAnsi, "İngilizce (ANSI, ABD)"),
-    ];
+    public static readonly IReadOnlyList<LayoutKind> All = [LayoutKind.TurkishQIso, LayoutKind.EnglishIso, LayoutKind.EnglishAnsi];
+
+    public static string Name(LayoutKind kind) => Loc.S(kind switch
+    {
+        LayoutKind.TurkishQIso => "layout.tr",
+        LayoutKind.EnglishIso => "layout.uk",
+        _ => "layout.us",
+    });
 
     static readonly HashSet<int> AccentKeys = [Esc, Enter, Space, 89, 94, 95, 101];
 
@@ -52,15 +54,20 @@ public static class VisualLayout
 
     static readonly Dictionary<int, string> Common = new()
     {
-        [Esc] = "Esc", [79] = "← Backspace", [2] = "Tab", [3] = "Caps Lock", [LShift] = "Shift", [82] = "Shift",
-        [Enter] = "Enter ↵", [5] = "Ctrl", [11] = "Win", [17] = "Alt", [Space] = "", [53] = "Alt Gr", [59] = "Fn",
-        [65] = "≡", [83] = "Ctrl", [84] = "Print", [90] = "Scroll", [96] = "Pause", [85] = "Ins", [91] = "Home",
-        [97] = "PgUp", [86] = "Del", [92] = "End", [98] = "PgDn", [94] = "↑", [89] = "←", [95] = "↓", [101] = "→",
+        [Esc] = "Esc", [79] = "Backspace", [2] = "Tab", [3] = "Caps Lock", [LShift] = "Shift", [82] = "Shift",
+        [Enter] = "Enter", [5] = "Ctrl", [11] = "Win", [17] = "Alt", [Space] = "", [53] = "Alt Gr", [59] = "Fn",
+        [65] = "", [83] = "Ctrl", [84] = "PrtSc", [90] = "ScrLk", [96] = "Pause", [85] = "Ins", [91] = "Home",
+        [97] = "PgUp", [86] = "Del", [92] = "End", [98] = "PgDn",
+        // arrows and the menu key are Segoe Fluent Icons glyphs (private use area)
+        [94] = "", [89] = "", [95] = "", [101] = "",
     };
+
+    /// <summary>True for a label that is a single Segoe Fluent Icons glyph.</summary>
+    public static bool IsIcon(string label) => label.Length == 1 && label[0] >= '' && label[0] <= '';
 
     static readonly Dictionary<int, string> Turkish = new()
     {
-        [Grave] = "\" é", [7] = "!\n1", [13] = "'\n2", [19] = "^\n3", [25] = "+\n4", [31] = "%\n5", [37] = "&\n6",
+        [Grave] = "é\n\"",[7] = "!\n1", [13] = "'\n2", [19] = "^\n3", [25] = "+\n4", [31] = "%\n5", [37] = "&\n6",
         [43] = "/\n7", [49] = "(\n8", [55] = ")\n9", [61] = "=\n0", [67] = "?\n*", [73] = "_\n-",
         [68] = "Ğ", [74] = "Ü", [63] = "Ş", [69] = "İ", [75] = ";\n,", [76] = ">\n<", [52] = "Ö", [58] = "Ç", [64] = ":\n.",
     };
@@ -79,14 +86,59 @@ public static class VisualLayout
         [68] = "{\n[", [74] = "}\n]", [Backslash] = "|\n\\", [63] = ":\n;", [69] = "\"\n'", [52] = "<\n,", [58] = ">\n.", [64] = "?\n/",
     };
 
+    /// <summary>The layout in use: the user's pick, or the Windows input layout when set to automatic.</summary>
     public static LayoutKind Current
     {
-        get => AppSettings.Load().Layout;
-        set
+        get
         {
             var s = AppSettings.Load();
-            s.Layout = value;
-            s.Save();
+            return s.LayoutAuto ? FromWindows() : s.Layout;
+        }
+    }
+
+    public static bool IsAuto => AppSettings.Load().LayoutAuto;
+
+    /// <summary>null = follow Windows.</summary>
+    public static void Set(LayoutKind? kind)
+    {
+        var s = AppSettings.Load();
+        s.LayoutAuto = kind is null;
+        if (kind is LayoutKind k)
+            s.Layout = k;
+        s.Save();
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    static extern bool GetKeyboardLayoutName(System.Text.StringBuilder klid);
+
+    /// <summary>
+    /// Maps the active Windows keyboard layout to a drawing. Uses the layout ID (KLID, e.g.
+    /// 0000041F), not the input language: a "English (US)" language can carry the Turkish Q
+    /// layout through a substitute, as on the machine this was written on.
+    /// Turkish → Turkish Q ISO, English (UK, Ireland) → UK ISO, other English → US ANSI;
+    /// other European layouts → ISO, the rest → ANSI.
+    /// </summary>
+    public static LayoutKind FromWindows()
+    {
+        try
+        {
+            var klid = new System.Text.StringBuilder(9);
+            if (!GetKeyboardLayoutName(klid))
+                return LayoutKind.EnglishAnsi;
+            int lang = Convert.ToInt32(klid.ToString()[^4..], 16);
+            int primary = lang & 0x3FF;
+            return lang switch
+            {
+                0x041F => LayoutKind.TurkishQIso, // also Turkish F (0001041F): same ISO shape
+                0x0809 or 0x1809 => LayoutKind.EnglishIso,
+                _ when primary == 0x09 => LayoutKind.EnglishAnsi,
+                _ when primary is 0x07 or 0x0C or 0x10 or 0x0A or 0x16 or 0x13 or 0x1D or 0x14 or 0x06 or 0x0B or 0x15 or 0x05 or 0x0E => LayoutKind.EnglishIso,
+                _ => LayoutKind.EnglishAnsi,
+            };
+        }
+        catch (Exception)
+        {
+            return LayoutKind.EnglishAnsi;
         }
     }
 
@@ -144,7 +196,9 @@ public static class VisualLayout
             : Common.TryGetValue(key.Led, out var c) ? c
             : key.Label;
         var kind = AccentKeys.Contains(key.Led) ? CapKind.Accent : DarkKeys.Contains(key.Led) ? CapKind.Dark : CapKind.Light;
-        return new VisualKey(key with { Label = label.Replace('\n', ' ') }, rects, label, kind);
+        // Tooltips and editors use the key's Label: keep the plain name for icon caps.
+        string name = IsIcon(label) ? key.Label : label.Replace('\n', ' ');
+        return new VisualKey(key with { Label = name }, rects, label, kind);
     }
 }
 
@@ -155,6 +209,9 @@ public sealed class AppSettings
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AulaKb", "settings.json");
 
     public LayoutKind Layout { get; set; } = LayoutKind.TurkishQIso;
+
+    /// <summary>Follow the Windows keyboard layout (default); Layout is then only the last manual pick.</summary>
+    public bool LayoutAuto { get; set; } = true;
 
     /// <summary>UI language override: null follows Windows, otherwise tr-TR / en-US.</summary>
     public string? Language { get; set; }

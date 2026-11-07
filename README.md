@@ -8,7 +8,10 @@ WinUI 3 so it looks and moves like Windows 11 itself.
 - **Keys:** remap any key on all four layers (default, FN1, FN2, Tap) to a key or combination,
   mouse button, media key, macro, Windows shortcut, or disable it.
 - **Macros:** record with real timing, edit delays, store on the keyboard.
-- **Music mode:** system audio (WASAPI loopback) drives the LEDs.
+- **Music mode:** system audio (WASAPI loopback) drives the LEDs, with the vendor tool's ten
+  modes rebuilt from captures of its output, previewed live on the on-screen keyboard.
+- **On-screen keyboard:** Turkish Q, UK ISO and US ANSI drawings; picked automatically from the
+  active Windows keyboard layout.
 - **Settings:** debounce, tap, backup/restore of every table, factory reset.
 - **CLI:** `aulakb info | verify | dump | backup | restore | effect | factory-reset`.
 - **Languages:** Turkish and English. The UI follows the Windows preferred language by default
