@@ -42,6 +42,13 @@ public sealed partial class KeysPage : Page
             KeyBox.Items.Add(new ComboBoxItem { Content = Loc.KeyName(usage), Tag = usage });
         foreach (var (usage, name) in Loc.ConsumerUsages())
             MediaBox.Items.Add(new ComboBoxItem { Content = name, Tag = usage });
+        // microphone keys: handled by AulaKb itself (see MicKeys), tagged with their index
+        for (int i = 0; i < MicKeys.All.Length; i++)
+        {
+            var item = new ComboBoxItem { Content = MicKeys.Name(MicKeys.All[i].Kind), Tag = i };
+            ToolTipService.SetToolTip(item, Loc.S("media.mic_tt"));
+            MediaBox.Items.Add(item);
+        }
         foreach (var (name, _) in Loc.Commands())
             CommandBox.Items.Add(new ComboBoxItem { Content = name });
         Board.KeyClicked += SelectKey;
@@ -140,6 +147,9 @@ public sealed partial class KeysPage : Page
         // Shortcut commands are stored as key combinations; show them as such if they match one.
         if (tag == "key" && Commands.All.Any(c => c.Action == action) && action.B != 0)
             tag = "command";
+        int mic = MicKeys.IndexOf(action);
+        if (mic >= 0)
+            tag = "media";
         TypeBox.SelectedItem = TypeBox.Items.Cast<ComboBoxItem>().First(i => (string)i.Tag == tag);
         ShowPanel(tag);
         switch (tag)
@@ -156,7 +166,9 @@ public sealed partial class KeysPage : Page
                 MouseBox.SelectedIndex = Math.Clamp(action.A - 1, 0, 4);
                 break;
             case "media":
-                MediaBox.SelectedItem = MediaBox.Items.Cast<ComboBoxItem>().FirstOrDefault(i => (ushort)i.Tag == action.ConsumerUsage);
+                MediaBox.SelectedItem = mic >= 0
+                    ? MediaBox.Items.Cast<ComboBoxItem>().FirstOrDefault(i => i.Tag is int m && m == mic)
+                    : MediaBox.Items.Cast<ComboBoxItem>().FirstOrDefault(i => i.Tag is ushort u && u == action.ConsumerUsage);
                 break;
             case "macro":
                 MacroBox.SelectedIndex = action.C < MacroBox.Items.Count ? action.C : -1;
@@ -230,7 +242,12 @@ public sealed partial class KeysPage : Page
             case "mouse":
                 return MouseBox.SelectedItem is ComboBoxItem m ? KeyAction.MouseButton(byte.Parse((string)m.Tag)) : null;
             case "media":
-                return MediaBox.SelectedItem is ComboBoxItem c ? KeyAction.Consumer((ushort)c.Tag) : null;
+                return (MediaBox.SelectedItem as ComboBoxItem)?.Tag switch
+                {
+                    ushort usage => KeyAction.Consumer(usage),
+                    int mic => MicKeys.All[mic].Action,
+                    _ => null,
+                };
             case "macro":
                 if (MacroBox.SelectedItem is not ComboBoxItem item)
                     return null;

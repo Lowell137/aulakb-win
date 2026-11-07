@@ -618,4 +618,16 @@
   <data name="macros.exported" xml:space="preserve">
     <value>{0} macros exported: {1}</value>
   </data>
+  <data name="media.mic_mute" xml:space="preserve">
+    <value>Microphone mute / unmute</value>
+  </data>
+  <data name="media.mic_up" xml:space="preserve">
+    <value>Microphone volume +</value>
+  </data>
+  <data name="media.mic_down" xml:space="preserve">
+    <value>Microphone volume −</value>
+  </data>
+  <data name="media.mic_tt" xml:space="preserve">
+    <value>Changes the default Windows microphone. Works while AulaKb runs (also in the tray); the key is stored as Ctrl+Shift+Alt+F10/F11/F12</value>
+  </data>
 </root>

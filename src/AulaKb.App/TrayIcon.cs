@@ -45,6 +45,7 @@ sealed class TrayIcon : IDisposable
         int size = GetSystemMetrics(49); // SM_CXSMICON
         _icon = LoadImage(IntPtr.Zero, iconPath, 1 /* IMAGE_ICON */, size, size, 0x10 /* LR_LOADFROMFILE */);
         Add();
+        MicKeys.Register(_hwnd); // microphone keys arrive here as global hotkeys
     }
 
     void Add()
@@ -75,6 +76,11 @@ sealed class TrayIcon : IDisposable
                 ShowMenu();
             return IntPtr.Zero;
         }
+        if (msg == 0x0312) // WM_HOTKEY
+        {
+            MicKeys.Handle(wParam.ToInt32());
+            return IntPtr.Zero;
+        }
         if (msg == _taskbarCreated && _taskbarCreated != 0)
         {
             Add(); // Explorer restarted: the old icon is gone
@@ -101,6 +107,7 @@ sealed class TrayIcon : IDisposable
 
     public void Dispose()
     {
+        MicKeys.Unregister(_hwnd);
         if (_added)
         {
             var data = Data();

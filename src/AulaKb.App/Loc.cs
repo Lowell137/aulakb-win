@@ -105,6 +105,9 @@ public static class Loc
     /// <summary>Human description of a key action, in the active UI language (see KeyAction.Describe in Core).</summary>
     public static string Describe(KeyAction a)
     {
+        int mic = MicKeys.IndexOf(a);
+        if (mic >= 0)
+            return MicKeys.Name(MicKeys.All[mic].Kind);
         if (!IsEnglish)
             return a.Describe();
         switch (a.Kind)

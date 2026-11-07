@@ -617,4 +617,16 @@
   <data name="macros.exported" xml:space="preserve">
     <value>{0} makro dışa aktarıldı: {1}</value>
   </data>
+  <data name="media.mic_mute" xml:space="preserve">
+    <value>Mikrofonu sessize al / aç</value>
+  </data>
+  <data name="media.mic_up" xml:space="preserve">
+    <value>Mikrofon sesi +</value>
+  </data>
+  <data name="media.mic_down" xml:space="preserve">
+    <value>Mikrofon sesi −</value>
+  </data>
+  <data name="media.mic_tt" xml:space="preserve">
+    <value>Windows'un varsayılan mikrofonunu değiştirir. AulaKb açıkken (tepsideyken de) çalışır; tuş Ctrl+Shift+Alt+F10/F11/F12 olarak saklanır</value>
+  </data>
 </root>
