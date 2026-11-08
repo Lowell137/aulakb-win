@@ -62,6 +62,17 @@ public static class VisualLayout
         [94] = "", [89] = "", [95] = "", [101] = "",
     };
 
+    /// <summary>
+    /// Word labels for the Turkish Q drawing, whatever the UI language (Windows' own key names
+    /// stay English even for the Turkish layout). Ctrl, Alt, Alt Gr, Win, Fn and Esc stay as-is.
+    /// </summary>
+    static readonly Dictionary<int, string> TurkishWords = new()
+    {
+        [79] = "Geri Sil", [2] = "Sekme", [3] = "Büyük Harf", [LShift] = "Üst Krkt", [82] = "Üst Krkt",
+        [Enter] = "Giriş", [84] = "Ekran\nYazdır", [90] = "Kaydır\nKilit", [96] = "Durdur",
+        [85] = "Ekle", [91] = "Baş", [97] = "Sayfa\nYukarı", [86] = "Sil", [92] = "Son", [98] = "Sayfa\nAşağı",
+    };
+
     /// <summary>True for a label that is a single Segoe Fluent Icons glyph.</summary>
     public static bool IsIcon(string label) => label.Length == 1 && label[0] >= '' && label[0] <= '';
 
@@ -193,6 +204,7 @@ public static class VisualLayout
     static VisualKey Make(KeyInfo key, IReadOnlyList<KeyRect> rects, Dictionary<int, string> labels)
     {
         string label = labels.TryGetValue(key.Led, out var l) ? l
+            : labels == Turkish && TurkishWords.TryGetValue(key.Led, out var t) ? t
             : Common.TryGetValue(key.Led, out var c) ? c
             : key.Label;
         var kind = AccentKeys.Contains(key.Led) ? CapKind.Accent : DarkKeys.Contains(key.Led) ? CapKind.Dark : CapKind.Light;
