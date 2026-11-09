@@ -57,6 +57,7 @@ public sealed partial class MusicPage : Page
         var rowOf = keys.ToDictionary(k => k.Led, k => Math.Clamp((int)Math.Round((k.Y - minY) / 32.0 - (k.Y > minY ? 0.25 : 0)), 0, 5));
         int[] perRow = Enumerable.Range(0, 6).Select(r => rowOf.Values.Count(v => v == r)).ToArray();
         var report = new System.Text.StringBuilder("mode: fraction of each row lit, rows 0 (F) .. 5 (Ctrl), then Space\n");
+        var dump = new System.Text.StringBuilder(); // mode, ms, frame hex: compared with vendor captures
 
         foreach (var style in Enum.GetValues<MusicStyle>())
         {
@@ -71,6 +72,7 @@ public sealed partial class MusicPage : Page
                 _visualizer.Inject(levels, beat);
                 var frame = _visualizer.BuildFrame();
                 _lastFrame = frame;
+                dump.AppendLine($"{(int)style + 1} {Environment.TickCount64} {Convert.ToHexString(frame)}");
                 foreach (var (led, row) in rowOf)
                     if (frame[led * 3] > 0 || frame[led * 3 + 1] > 0 || frame[led * 3 + 2] > 0)
                     {
@@ -86,6 +88,7 @@ public sealed partial class MusicPage : Page
             await snapshot($"music-{(int)style + 1}-{style}");
         }
         await File.WriteAllTextAsync(Path.Combine(dir, "selftest", "music-rows.txt"), report.ToString());
+        await File.WriteAllTextAsync(Path.Combine(dir, "selftest", "music-frames.txt"), dump.ToString());
     }
 
     byte[] NextFrame()

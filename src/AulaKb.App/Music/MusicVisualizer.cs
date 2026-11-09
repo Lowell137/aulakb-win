@@ -72,7 +72,8 @@ public sealed class MusicVisualizer : IDisposable
     // state of the animated modes
     double _last;
     float _overallSmooth;
-    double _hue;
+    double _hue;          // slow drift, never jumps: the vendor's colours move at most ~10° a frame
+    int _boardColour;     // Clouds and snow: palette colour, steps on beats
     readonly List<(float X, int Row, float Hue, double Born)> _blooms = [];
     readonly List<(int Row, float X0, float Length, float Hue, double Born)> _strokes = [];
     readonly (float X, float Hue)[] _runners = new (float, float)[5];
@@ -153,6 +154,7 @@ public sealed class MusicVisualizer : IDisposable
             float mono = 0;
             for (int c = 0; c < channels; c++)
                 mono += samples[i + c];
+            _left[_filled] = samples[i];
             _window[_filled++] = mono / channels;
             if (_filled == FftSize)
             {
@@ -162,8 +164,59 @@ public sealed class MusicVisualizer : IDisposable
         }
     }
 
+    // ---- the vendor tool's analysis (decompiled from OemDrv.exe, FUN_00480860 / FUN_00454120) ----
+    // 1024 samples of the left channel as 16-bit values, no window, one FFT per block. Each of 23
+    // bands is ONE bin at 1024·f/fs: value = (int)(20·log10((re²+im²) / 32767²)), negatives → 0,
+    // times the gain (0.5 + 0.1·step, default 1.0), clamped 0..100, then the average of the last
+    // N blocks (N = smoothness, default 4). Every music mode reads these 23 values.
+    static readonly int[] VendorBandHz = [30, 60, 100, 160, 240, 300, 350, 400, 440, 500, 600, 800, 1000, 1500, 2000, 2600, 3000, 4000, 6000, 8000, 10000, 14000, 16000];
+    const int VendorBands = 23;
+    readonly float[] _left = new float[FftSize];
+    readonly int[] _vendorBands = new int[VendorBands];
+    readonly List<int[]> _vendorHistory = [];
+
+    void AnalyseVendor()
+    {
+        var data = new Complex[FftSize];
+        for (int i = 0; i < FftSize; i++)
+        {
+            data[i].X = (float)(int)(Math.Clamp(_left[i], -1f, 1f) * 32767);
+            data[i].Y = 0;
+        }
+        FastFourierTransform.FFT(true, 10, data); // NAudio scales the forward transform by 1/N
+        float gain = Math.Clamp(Gain / 1.5f, 0.5f, 2.0f); // our slider's default 1.5 = the vendor's 1.0
+        var block = new int[VendorBands];
+        for (int b = 0; b < VendorBands; b++)
+        {
+            if (VendorBandHz[b] > _sampleRate / 2)
+                continue;
+            int bin = (int)((long)FftSize * VendorBandHz[b] / _sampleRate);
+            double re = data[bin].X * (double)FftSize, im = data[bin].Y * (double)FftSize;
+            double power = re * re + im * im;
+            int db = power > 0 ? (int)(20 * Math.Log10(power / (32767.0 * 32767.0))) : 0;
+            if (db < 0)
+                db = 0;
+            block[b] = Math.Min(100, (int)(db * gain));
+        }
+        int n = Math.Clamp(Smoothness, 1, 9);
+        lock (_lock)
+        {
+            _vendorHistory.Add(block);
+            while (_vendorHistory.Count > n)
+                _vendorHistory.RemoveAt(0);
+            for (int b = 0; b < VendorBands; b++)
+            {
+                int sum = 0;
+                foreach (var h in _vendorHistory)
+                    sum += h[b];
+                _vendorBands[b] = sum / _vendorHistory.Count;
+            }
+        }
+    }
+
     void Analyse()
     {
+        AnalyseVendor();
         var data = new Complex[FftSize];
         for (int i = 0; i < FftSize; i++)
         {
@@ -223,6 +276,8 @@ public sealed class MusicVisualizer : IDisposable
         lock (_lock)
         {
             Array.Copy(levels, _levels, Math.Min(levels.Length, Bands));
+            for (int b = 0; b < VendorBands; b++)
+                _vendorBands[b] = (int)(Math.Clamp(levels[Math.Min(levels.Length - 1, b * levels.Length / VendorBands)], 0, 1) * 100);
             _beats += beats;
         }
     }
@@ -232,8 +287,10 @@ public sealed class MusicVisualizer : IDisposable
     {
         float[] levels;
         int beats;
+        int[] vb;
         lock (_lock)
         {
+            vb = (int[])_vendorBands.Clone();
             levels = (float[])_levels.Clone();
             beats = _beats;
             _beats = 0;
@@ -242,17 +299,20 @@ public sealed class MusicVisualizer : IDisposable
         float dt = (float)Math.Clamp(t - _last, 0, 0.2);
         _last = t;
         float overall = Math.Clamp(levels.Average() * 1.25f, 0, 1);
-        _overallSmooth += (overall - _overallSmooth) * Math.Min(1, dt * 12);
+        // Captured: the vendor's shapes jump up at once on a loud moment and then fall back at a
+        // constant rate (a peak hold with a linear fall), they don't ease in and out.
+        _overallSmooth = Math.Max(overall, _overallSmooth - dt * 1.1f);
+        _flowerSize = Math.Max(Math.Min(7.3f, overall * 7.5f), _flowerSize - dt * FlowerFallPerSecond);
         _hue = (_hue + dt * 0.05) % 1.0;
         if (beats > 0)
-            _hue = (_hue + 0.13) % 1.0;
+            _boardColour = (_boardColour + 1 + _random.Next(PaletteHues.Length - 1)) % PaletteHues.Length;
 
         var frame = new byte[Leds * 3];
         switch (Style)
         {
-            case MusicStyle.AudioDance: Flower(frame); break;
+            case MusicStyle.AudioDance: Flower(frame, vb, t); break;
             case MusicStyle.Dazzling: Rows(frame, levels, t); break;
-            case MusicStyle.CloudsAndSnow: WholeBoard(frame); break;
+            case MusicStyle.CloudsAndSnow: WholeBoard(frame, vb); break;
             case MusicStyle.LightField: Bars(frame, levels, perBarHue: false, t); break;
             case MusicStyle.GurglingStream: Pearls(frame, beats, t, small: true); break;
             case MusicStyle.Blooming: Bars(frame, levels, perBarHue: true, t); break;
@@ -264,19 +324,64 @@ public sealed class MusicVisualizer : IDisposable
         return frame;
     }
 
-    void Flower(byte[] frame)
+    // Audio dance rings as the vendor tool lights them (LED numbers, centre = Y key column).
+    static readonly int[][] FlowerRings =
+    [
+        [44],
+        [38, 39, 43, 45, 49, 50],
+        [32, 33, 34, 37, 40, 42, 46, 51, 55, 56],
+        [26, 27, 28, 31, 35, 36, 48, 52, 57, 61, 62],
+        [20, 21, 22, 25, 30, 54, 58, 63, 67, 68],
+        [14, 15, 16, 19, 24, 53, 60, 64, 69, 73, 74],
+        [8, 9, 10, 13, 17, 18, 59, 65, 66, 72, 79, 80, 81, 82, 83],
+    ];
+
+    // Audio dance colour clock, captured: green → blue → cyan → red → magenta → yellow, round
+    // and round regardless of the music. The colour changes every 2 frames (~94 ms): it holds a
+    // colour 4 steps, then fades to the next one in 8 even RGB steps (1.125 s per colour). Each
+    // ring outwards shows the centre's colour from 0.47 s earlier, so colours flow outwards.
+    static readonly Rgb[] FlowerCycle =
+    [
+        new(0, 255, 0), new(0, 0, 255), new(0, 255, 255), new(255, 0, 0), new(255, 0, 255), new(255, 255, 0),
+    ];
+    const double ClockStep = 0.0935;
+    const double RingDelay = 0.47;
+
+    static Rgb FlowerColour(double t)
     {
-        // Captured: a hexagonal flower centred on the letter block, each ring its own colour.
-        float cx = 7.3f, cy = 2.6f;
-        float rings = 0.3f + _overallSmooth * 3.6f;
-        for (int led = 0; led < Leds; led++)
+        long step = (long)Math.Floor(t / ClockStep);
+        int n = FlowerCycle.Length;
+        int index = (int)(((step / 12) % n + n) % n);
+        int within = (int)(((step % 12) + 12) % 12);
+        var a = FlowerCycle[index];
+        var b = FlowerCycle[(index + 1) % n];
+        float f = Math.Clamp((within - 4) / 8f, 0, 1);
+        return new Rgb((byte)(a.R + (b.R - a.R) * f), (byte)(a.G + (b.G - a.G) * f), (byte)(a.B + (b.B - a.B) * f));
+    }
+
+    float _flowerSize;
+    const float FlowerFallPerSecond = 0.36f / 0.0468f; // captured: 0.36 ring per frame
+    int _flowerLevel;
+
+    void Flower(byte[] frame, int[] vb, double t)
+    {
+        // Vendor (FUN_0047cb40, mode 1): the level is band 1 (60 Hz). It jumps up at once and
+        // falls at most 5 a frame. Rings lit = level / (100/7) from the centre (U, flower.txt);
+        // the remainder lights one more ring at remainder/14 brightness.
+        int level = Math.Min(100, vb[1]);
+        _flowerLevel = level < _flowerLevel ? Math.Max(0, _flowerLevel - Math.Min(_flowerLevel - level, 5)) : level;
+        int rings = FlowerRings.Length;
+        int per = 100 / rings; // 14
+        int lit = (int)(_flowerLevel / (100.0 / rings));
+        int rem = (int)(_flowerLevel - lit * (100.0 / rings));
+        if (rem > 0 && lit < rings)
+            lit++;
+        for (int ring = 0; ring < rings; ring++)
         {
-            if (!_has[led])
-                continue;
-            float dx = Math.Abs(_ux[led] - cx), dy = Math.Abs(_row[led] - cy);
-            float d = Math.Max(dy, dx * 0.6f + dy * 0.5f);   // hexagon
-            float k = Math.Clamp(rings - d + 0.5f, 0, 1);
-            Put(frame, led, k, _hue + (int)d * 0.12);
+            float k = ring >= lit ? 0 : ring == lit - 1 && rem > 0 ? Math.Min(1f, rem / (float)per) : 1f;
+            var colour = FlowerColour(t - ring * RingDelay);
+            foreach (int led in FlowerRings[ring])
+                PutRgb(frame, led, k, colour);
         }
     }
 
@@ -367,13 +472,41 @@ public sealed class MusicVisualizer : IDisposable
         }
     }
 
-    void WholeBoard(byte[] frame)
+    int _cloudLevel;
+    Rgb _cloudColour = new(0, 0, 255);
+
+    void WholeBoard(byte[] frame, int[] vb)
     {
-        float k = Math.Clamp((_overallSmooth - 0.05f) * 1.4f, 0, 1); // dark when quiet, as captured
+        // Vendor (mode 3): band 2 (100 Hz), or band 12 (1 kHz) when that is silent. Rising: the
+        // colour is picked by how loud it is (blue < 41, cyan < 51, green < 61, yellow < 71,
+        // orange < 81, magenta < 91, red); falling: at most 10 a frame. Brightness = level %.
+        int level = vb[2] < 1 ? vb[12] : vb[2];
+        level = Math.Min(100, level);
+        if (level < 1 || level < _cloudLevel)
+            _cloudLevel = Math.Max(0, _cloudLevel - Math.Min(_cloudLevel - level, 10));
+        else
+        {
+            _cloudColour = level switch
+            {
+                < 41 => new Rgb(0, 0, 255),
+                < 51 => new Rgb(0, 255, 255),
+                < 61 => new Rgb(0, 255, 0),
+                < 71 => new Rgb(255, 255, 0),
+                < 81 => new Rgb(255, 128, 0),
+                < 91 => new Rgb(255, 0, 255),
+                _ => new Rgb(255, 0, 0),
+            };
+            _cloudLevel = level;
+        }
         for (int led = 0; led < Leds; led++)
             if (_has[led])
-                Put(frame, led, k, _hue);
+                PutRgb(frame, led, _cloudLevel / 100f, _cloudColour);
     }
+
+    // The vendor's colours are pure: red, orange, yellow, green, cyan, blue, magenta.
+    static readonly double[] PaletteHues = [0, 30 / 360.0, 60 / 360.0, 120 / 360.0, 180 / 360.0, 240 / 360.0, 300 / 360.0];
+
+    double RandomPaletteHue() => PaletteHues[_random.Next(PaletteHues.Length)];
 
     void Pearls(byte[] frame, int beats, double t, bool small = false)
     {
@@ -383,15 +516,17 @@ public sealed class MusicVisualizer : IDisposable
         {
             int led;
             do led = _random.Next(Leds); while (!_has[led]);
-            _blooms.Add((_ux[led], _row[led], (float)_random.NextDouble(), t));
+            _blooms.Add((_ux[led], _row[led], (float)RandomPaletteHue(), t));
         }
-        double life = small ? 0.8 : 0.6;
+        // Captured (Gurgling stream): a key brightens in ~3 frames (20 % → 40 % → full), stays a
+        // few frames and goes dark at once, no slow fade.
+        double life = small ? 0.25 : 0.6;
         _blooms.RemoveAll(b => t - b.Born > life);
         foreach (var b in _blooms)
         {
             float age = (float)((t - b.Born) / life);          // 0..1
-            float radius = small ? 1f + age * 2.4f : 0.8f + age * 4.2f;
-            float fade = 1 - age * age;
+            float radius = small ? 1f + age * 1.2f : 0.8f + age * 4.2f;
+            float fade = small ? Math.Clamp((float)(t - b.Born) / 0.12f, 0.2f, 1f) : 1 - age * age;
             for (int led = 0; led < Leds; led++)
             {
                 if (!_has[led])
@@ -408,7 +543,8 @@ public sealed class MusicVisualizer : IDisposable
         if (_random.NextDouble() < overall * 1.6)
         {
             float length = 2 + overall * _width * 0.6f;
-            _strokes.Add((_random.Next(6), (float)_random.NextDouble() * (_width - length), length, (float)_random.NextDouble(), t));
+            // colours near the drifting hue, so the board does not flicker between random colours
+            _strokes.Add((_random.Next(6), (float)_random.NextDouble() * (_width - length), length, (float)(_hue + _random.NextDouble() * 0.12), t));
         }
         _strokes.RemoveAll(s => t - s.Born > 0.14);
         foreach (var s in _strokes)
@@ -427,7 +563,7 @@ public sealed class MusicVisualizer : IDisposable
             if (r.X > _width + 6)
             {
                 r.X -= _width + 9;
-                r.Hue = (float)_random.NextDouble();
+                r.Hue = (float)((_hue + i * 0.17) % 1.0);
             }
             _runners[i] = r;
             for (int led = 0; led < Leds; led++)
@@ -453,6 +589,17 @@ public sealed class MusicVisualizer : IDisposable
             return;
         }
         var colour = Colourful ? Hue(((hue % 1.0) + 1.0) % 1.0) : Colour;
+        frame[led * 3] = (byte)(colour.R * intensity);
+        frame[led * 3 + 1] = (byte)(colour.G * intensity);
+        frame[led * 3 + 2] = (byte)(colour.B * intensity);
+    }
+
+    void PutRgb(byte[] frame, int led, float intensity, Rgb rgb)
+    {
+        intensity = Math.Clamp(intensity, 0, 1);
+        var colour = Colourful ? rgb : Colour;
+        if (intensity < 0.05f)
+            colour = new Rgb(0, 0, 0);
         frame[led * 3] = (byte)(colour.R * intensity);
         frame[led * 3 + 1] = (byte)(colour.G * intensity);
         frame[led * 3 + 2] = (byte)(colour.B * intensity);
