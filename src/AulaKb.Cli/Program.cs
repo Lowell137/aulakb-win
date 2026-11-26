@@ -1,4 +1,5 @@
 using AulaKb.Core;
+using AulaKb.Core.Hid;
 
 // aulakb: command line access to the Aula F87 Pro configuration.
 // Read-only commands never write; writing commands say so in their name.
@@ -14,6 +15,7 @@ if (args.Length == 0)
           restore <dir>             write tables saved by backup
           effect <id> [bri] [spd]   set the hardware effect (0..0x15)
           factory-reset             write the vendor tool's factory tables
+          probe-dongle              raw 2.4G read trace (read only)
         """);
     return 1;
 }
@@ -21,7 +23,7 @@ if (args.Length == 0)
 using var kb = AulaKeyboard.Find();
 if (kb is null)
 {
-    Console.Error.WriteLine("Aula F87 Pro (258A:010C) not found.");
+    Console.Error.WriteLine("Aula F87 Pro not found (USB cable 258A:010C or 2.4G receiver 3554:FA09).");
     return 2;
 }
 
@@ -31,13 +33,15 @@ switch (args[0])
     {
         var id = kb.QueryIdentity();
         var p = kb.ReadProfile();
-        Console.WriteLine($"{id.Name}  identity [{id.RawHex}]  firmware {kb.FirmwareVersion}");
+        Console.WriteLine($"{id.Name} via {kb.TransportName}  identity [{id.RawHex}]  firmware {kb.FirmwareVersion}");
         Console.WriteLine($"effect {Effects.Get(p.Effect).Name} (0x{p.Effect:X2}), brightness {p.GetBrightness(p.Effect)}, speed {p.GetSpeed(p.Effect)}, colour slot {p.GetColourSlot(p.Effect)}");
         Console.WriteLine($"debounce stage {p.Debounce + 1}, tap {(p.TapSensitivity == 0 ? "off" : $"on ({p.TapSensitivity})")}");
         return 0;
     }
     case "verify":
     {
+        if (!kb.CanReadBlocks)
+            Console.WriteLine("2.4G: only the profile can be read back; other blocks are cached copies, not verified.");
         int bad = 0;
         bad += Check("profile", ReadRaw(() => kb.ReadProfile().ToArray()), r => new LightProfile(r).ToArray(), r => new LightProfile(r).IsValid);
         bad += Check("palette", ReadRaw(() => kb.ReadPalette().ToArray()), r => new Palette(r).ToArray(), r => r[506] == 0x5A && r[507] == 0xA5);
@@ -193,6 +197,38 @@ switch (args[0])
         kb.RestoreFactoryDefaults();
         Console.WriteLine("factory tables written");
         return 0;
+    case "probe-dongle":
+    {
+#pragma warning disable CA1416 // Windows HID transport
+        var info = WindowsHid.Enumerate(AulaKeyboard.DongleVendorId).FirstOrDefault(d =>
+            d.ProductId == AulaKeyboard.DongleProductId && d.UsagePage == 0xFF02 && d.OutputLength == 20);
+        if (info is null)
+        {
+            Console.Error.WriteLine("2.4G receiver not found.");
+            return 2;
+        }
+        using var dev = new WindowsHidStream(info.Path);
+        var request = new byte[20];
+        request[0] = 0x13;
+        byte cmd = args.Length > 1 ? Convert.ToByte(args[1], 16) : (byte)0x44; // read profile by default
+        request[1] = cmd;
+        request[2] = cmd == 0x4A ? (byte)0 : (byte)0x01;
+        for (int i = 0; i < 19; i++)
+            request[19] += request[i];
+        Console.WriteLine("send " + Convert.ToHexString(request));
+        if (!dev.WriteReport(request))
+            Console.Error.WriteLine("write failed");
+        var buffer = new byte[20];
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        while (DateTime.UtcNow < deadline)
+        {
+            int n = dev.ReadReport(buffer, 100);
+            if (n > 0)
+                Console.WriteLine($"recv {n}: {Convert.ToHexString(buffer)}");
+        }
+#pragma warning restore CA1416
+        return 0;
+    }
     default:
         Console.Error.WriteLine($"unknown command {args[0]}");
         return 1;

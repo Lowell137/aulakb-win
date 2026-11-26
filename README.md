@@ -1,7 +1,7 @@
 # AulaKb
 
-An open-source configuration app for the **Aula F87 Pro** (wired, `258A:010C`), built with
-WinUI 3 so it looks and moves like Windows 11 itself.
+An open-source configuration app for the **Aula F87 Pro**, over the USB cable (`258A:010C`)
+or the 2.4G receiver (`3554:FA09`), built with WinUI 3 so it looks and moves like Windows 11 itself.
 
 - **Lighting:** all hardware effects (including four the vendor tool hides), brightness, speed,
   single colour or colourful, per-key colours for Self-define, and a live preview.
@@ -24,6 +24,16 @@ WinUI 3 so it looks and moves like Windows 11 itself.
   (English is the fallback) and can be switched on the Settings page.
 
 The protocol is documented in [docs/PROTOCOL.md](docs/PROTOCOL.md).
+
+**2.4G note:** the receiver can only read the lighting profile back. Palette, per-key colours,
+key layers and macros are kept in a local copy and refreshed when you write them; verify cannot
+check those blocks over the radio. Live frames run at ~14 fps instead of ~21. The keyboard must
+be switched to 2.4G mode and paired with the receiver. Verified on hardware 2026-11-27 with
+firmware V1.0.1 (identity `03 00 00 00 01 0B`) over `3554:FA09`: `info`, `verify`, `effect`
+(write + read back) and `light` (live frames) all worked, and the Device page shows
+"AULA F87 PRO (2.4G) · Connected". A keyboard flashed with the wired-only firmware (`0xA9`)
+cannot pair; reflash the three-mode firmware and, if it stays in `0603:1020` ISP after a PASS,
+`sinowisp read -d aula-f87 out.hex` restores the firmware-enable byte and boots it.
 
 ## Screenshots
 

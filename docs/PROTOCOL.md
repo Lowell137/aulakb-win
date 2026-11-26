@@ -1,4 +1,4 @@
-# Aula F87 Pro (wired) configuration protocol
+# Aula F87 Pro configuration protocol (USB cable and 2.4G receiver)
 
 Captured from the vendor tool (`OemDrv.exe` 2.1, "AULA F87 PRO") with a `hid.dll` proxy
 placed next to a copy of the tool, on firmware V2.0.0, identity `03 00 00 00 00 A9`
@@ -112,3 +112,56 @@ default profile (Neon stream) and the default palette. Per-key colours and macro
 Feature report id 5 (6 bytes, interface collection 5) is the SinoWealth ISP / bootloader entry
 channel; the bootloader enumerates as `0603:1020`. Firmware updates go through it. AulaKb never
 sends report 5, never reads the `88`/`89` code windows, and has no update path.
+
+## 2.4G receiver
+
+USB `3554:FA09`, interface 1, top-level collection with usage page `0xFF02`, usage `0x02`,
+**20-byte input/output report, id `0x13`** (no feature reports). The same receiver also exposes
+keyboard, consumer, system and mouse collections, plus a `0xFF04` collection; only the `0xFF02`
+one carries configuration frames. Windows opens it with `CreateFile` + `ReadFile`/`WriteFile`
+(overlapped, with a read timeout), not `HidD_GetFeature`/`SetFeature`.
+
+Frame (checksum = sum of bytes 0..18, `mod 256`):
+
+| byte | meaning |
+|---|---|
+| 0 | report id `13` |
+| 1 | command |
+| 2 | sub command (layer for the matrix) |
+| 3 | fragment index, 0-based |
+| 4 | payload length, or `0x10 + length` for live frames |
+| 5..18 | up to 14 data bytes |
+| 19 | checksum |
+
+Blocks are split into 14-byte fragments; the keyboard echoes every frame with the same
+`command/sub/index`. Packets are spaced ~10–15 ms. A sleeping keyboard answers nothing, and a
+reply can be lost, so reads retry and writes wait for the echo before sending the next fragment.
+
+| write | read | sub | block |
+|---|---|---|---|
+| `01` | `41` | layer | key matrix, unused (reads are not implemented) |
+| `02` | `42` | `1C` | per-key colours, 378 bytes + `00 00 5A A5 00 00` |
+| `03` | `43` | page | macro blob, 512-byte pages |
+| `04` | `44` | `0A` | profile, 128 bytes. Read request `13 44 01 00 …`; reply has `02 = 0A`, ten fragments |
+| `09` | `49` | `25` | palette, 512 bytes |
+| `0A` | — | `01` | save (`04 07`); sent after every write, no echo |
+| `88` | — | 0 | live frame, no echo |
+
+Live frame (`0x88`) data is colour groups `R G B count led…`, largest group first, at most 14
+fragments; byte 4 is `0x10 + length`. The all-off frame is `13 88 01 00 23 00 … BF`. Frames must
+be ~10 ms apart; 2 ms makes the animation stutter. Only the profile has a known read command, so
+AulaKb caches the other blocks from the factory tables and refreshes each cache entry on write.
+
+Firmware/reset commands (`0x06`, `0x88`/`0x89` code windows) are not used, as on the cable.
+
+Device support first appeared in `Radiance-Philippines/aula-f87-control` and
+`marcoslor/Aula-F87-Controller`; the F75 driver decompilation in `trenbolone1122/aula-f75-linux`
+documents the shared Compx receiver protocol.
+
+Verified on real hardware 2026-11-27: `aulakb info` and `verify` read the profile over `0x13`,
+`effect 1` / `effect 0x0B` wrote and read back across the radio, and `light` streamed live frames
+that were visible on the keyboard. The receiver must be the keyboard's own three-mode receiver;
+a keyboard whose firmware was replaced with the **wired-only** image (identity `0xA9`) never
+answers, because that image has no 2.4G stack. After reflashing the three-mode image (identity
+`0x0B`, updater reports `PASS`), the MCU can remain in the `0603:1020` ISP bootloader: the
+firmware-enable `LJMP` byte is missing, and `sinowisp read -d aula-f87 out.hex` restores it.

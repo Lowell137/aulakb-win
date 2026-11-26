@@ -58,8 +58,8 @@
   <data name="device.hidpath" xml:space="preserve">
     <value>HID yolu</value>
   </data>
-  <data name="device.wired_firmware" xml:space="preserve">
-    <value>Kablolu · firmware {0}</value>
+  <data name="device.connection" xml:space="preserve">
+    <value>{0} · firmware {1}</value>
   </data>
   <data name="device.connected" xml:space="preserve">
     <value>Bağlı</value>
@@ -68,7 +68,7 @@
     <value>Klavye bulunamadı</value>
   </data>
   <data name="device.notfound_hint" xml:space="preserve">
-    <value>Aula F87 Pro'yu kabloyla tak. 2.4G alıcı şimdilik desteklenmiyor.</value>
+    <value>Aula F87 Pro'yu USB kabloyla veya 2.4G alıcısıyla tak.</value>
   </data>
 
   <data name="common.reading" xml:space="preserve">

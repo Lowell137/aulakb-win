@@ -2,7 +2,7 @@
 ; offers "run at startup", nothing needs admin rights.
 
 #define MyAppName "AulaKb"
-#define MyAppVersion "1.2.4"
+#define MyAppVersion "1.3.0"
 #define MyAppPublisher "Lowell137"
 #define MyAppExeName "AulaKb.exe"
 

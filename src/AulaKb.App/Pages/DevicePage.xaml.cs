@@ -25,9 +25,10 @@ public sealed partial class DevicePage : Page
             KeyboardService.Disconnect();
         try
         {
-            var (identity, info, firmware) = await KeyboardService.RunAsync(kb => (kb.QueryIdentity(), kb.Info, kb.FirmwareVersion));
+            var (identity, info, firmware, transport) = await KeyboardService.RunAsync(kb =>
+                (kb.QueryIdentity(), kb.Info, kb.FirmwareVersion, kb.TransportName));
             ProductText.Text = identity.Name;
-            SubText.Text = Loc.F("device.wired_firmware", firmware);
+            SubText.Text = Loc.F("device.connection", transport, firmware);
             VidPidText.Text = $"{info.VendorId:X4}:{info.ProductId:X4}";
             RawText.Text = identity.RawHex;
             PathText.Text = info.Path;

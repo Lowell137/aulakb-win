@@ -59,8 +59,8 @@
   <data name="device.hidpath" xml:space="preserve">
     <value>HID path</value>
   </data>
-  <data name="device.wired_firmware" xml:space="preserve">
-    <value>Wired · firmware {0}</value>
+  <data name="device.connection" xml:space="preserve">
+    <value>{0} · firmware {1}</value>
   </data>
   <data name="device.connected" xml:space="preserve">
     <value>Connected</value>
@@ -69,7 +69,7 @@
     <value>Keyboard not found</value>
   </data>
   <data name="device.notfound_hint" xml:space="preserve">
-    <value>Plug the Aula F87 Pro in with the cable. The 2.4G receiver is not supported yet.</value>
+    <value>Plug the Aula F87 Pro in with the USB cable or its 2.4G receiver.</value>
   </data>
 
   <data name="common.reading" xml:space="preserve">

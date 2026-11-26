@@ -66,7 +66,7 @@ static class KeyboardService
         return true;
     });
 
-    /// <summary>Sends a fresh direct frame every 46.8 ms (the vendor tool's rate) until stopped. Nothing is saved on the keyboard.</summary>
+    /// <summary>Sends a fresh direct frame until stopped, at the transport's rate (46.8 ms on the cable, 70 ms over 2.4G). Nothing is saved on the keyboard.</summary>
     public static void StartStream(Func<byte[]> nextFrame)
     {
         var keyboard = Keyboard ?? Connect() ?? throw new InvalidOperationException(Loc.S("error.notfound_short"));
@@ -83,14 +83,15 @@ static class KeyboardService
             try
             {
                 var clock = System.Diagnostics.Stopwatch.StartNew();
+                double interval = keyboard.FrameIntervalMs; // the radio needs slower frames than the cable
                 double next = 0;
                 while (!cts.IsCancellationRequested)
                 {
                     keyboard.SendDirectFrame(nextFrame());
-                    next += FrameMs;
+                    next += interval;
                     double wait = next - clock.Elapsed.TotalMilliseconds;
-                    if (wait < -FrameMs)
-                        next = clock.Elapsed.TotalMilliseconds; // fell behind (USB hiccup): no burst
+                    if (wait < -interval)
+                        next = clock.Elapsed.TotalMilliseconds; // fell behind (radio/USB hiccup): no burst
                     else if (wait >= 1)
                         cts.Token.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(wait));
                 }
@@ -109,8 +110,6 @@ static class KeyboardService
         { IsBackground = true, Name = "AulaKb frames", Priority = ThreadPriority.AboveNormal };
         thread.Start();
     }
-
-    const double FrameMs = 46.8;
 
     [System.Runtime.InteropServices.DllImport("winmm.dll")] static extern uint timeBeginPeriod(uint ms);
     [System.Runtime.InteropServices.DllImport("winmm.dll")] static extern uint timeEndPeriod(uint ms);
